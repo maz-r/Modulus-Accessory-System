@@ -1,0 +1,9 @@
+[Unit]
+Description=Modulus Sound shell script
+Requires=mosquitto.service
+
+[Service]
+ExecStart=/home/sms/sound_subsystem/built_in_sound.sh
+
+[Install]
+WantedBy=multi-user.target

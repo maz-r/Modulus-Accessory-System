@@ -1,0 +1,9 @@
+[Unit]
+Description=Modulus message activity LED shell script
+Requires=mosquitto.service
+
+[Service]
+ExecStart=/home/sms/messageWatch.sh
+
+[Install]
+WantedBy=multi-user.target

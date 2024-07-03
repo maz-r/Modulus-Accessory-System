@@ -1,0 +1,9 @@
+[Unit]
+Description=Modulus shutdown on specific event shell script
+Requires=mosquitto.service
+
+[Service]
+ExecStart=/home/sms/shutdown_event_subsystem/shutdownWatch.sh
+
+[Install]
+WantedBy=multi-user.target

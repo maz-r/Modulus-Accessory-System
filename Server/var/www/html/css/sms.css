@@ -1,0 +1,518 @@
+<style>
+
+select {
+	height: 26px;
+	border-radius: 5px;
+	border-width: 2px;
+}
+
+button {
+	background: white;
+	border-style: groove;
+}
+
+
+body {
+	position: relative; 
+	min-width: 1080px; 
+	overflow-x:scroll;
+	color: black; 
+	font-family: sans-serif;
+	background: #f0f0f0;
+}
+
+.switchTableCell {
+    background: white;
+    color: black;
+    padding-left: 7px;
+    padding-right: 40px;
+    border-radius: 5px;
+    height: 25px;
+    border-style: solid;
+    border-width: thin;
+}
+
+.outercontainer {
+    margin-left: auto;
+    margin-right: auto;
+    width: 1100px;
+    position: relative;
+}
+
+.innerPage {
+  padding: 10px;
+}
+
+.frontpage_logo {
+  float: right;
+  width:95px;
+}
+
+/* Add a black background color to the top navigation */
+.menu {
+    background-color: #333;
+    overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.menu a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 0px;
+    text-decoration: none;
+    font-size: 17px;
+    width: 120px;
+}
+
+/* Change the color of links on hover */
+.menu a:hover {
+    background-color: #ddd;
+    color: white;
+}
+
+/* Add a color to the active/current link */
+.menu a.active {
+    background-color: white;
+    color: black;
+}
+
+/* Add a black background color to the top navigation */
+.settingsmenu {
+    background-color: #333;
+    overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.settingsmenu a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 0px;
+    text-decoration: none;
+    font-size: 17px;
+    width: 185px;
+}
+
+/* Change the color of links on hover */
+.settingsmenu a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* Add a color to the active/current link */
+.settingsmenu a.active {
+    background-color: white;
+    color: black;
+}
+
+/* Add a black background color to the top navigation */
+.labelsmenu {
+    background-color: #333;
+    overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.labelsmenu a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 0px;
+    text-decoration: none;
+    font-size: 17px;
+    width: 185px;
+}
+
+/* Change the color of links on hover */
+.labelsmenu a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* Add a color to the active/current link */
+.labelsmenu a.active {
+    background-color: white;
+    color: black;
+}
+
+.page {
+/*    position: absolute; */
+/*    margin-top: 48px; */
+    width: 100%;
+    display: none;
+    padding-top: 14px;
+    background: white;
+}
+
+.footer {
+	background: white;
+    padding: 5px;
+    height: 65px;
+}
+
+.debugpage {
+/*    position: absolute; */
+/*    margin-top: 48px; */
+    width: 100%;
+    padding-top: 14px;
+    background: white;
+    height:545px;
+}
+
+.settingspage {
+    width: 100%;
+    display: none;
+    padding-top: 14px;
+    background: white;
+}
+
+.subpage {
+    display: block;
+    width: 100%;
+    padding-top:16px;
+    padding-bottom:20px;
+}
+
+.subTestpage {
+    display: block;
+    width: 92%;
+    border-top-style: groove;
+    border-bottom-style: groove;
+    padding-top:16px;
+    padding-bottom:20px;
+    margin-top: 38px;
+}
+
+.inputButton {
+    width:80px;
+    margin-top: 15px;
+    margin-right: 15px;
+    float: right;
+    color:white;
+}
+
+:disabled {
+  background: #eeeeee;
+  color: black;
+}
+
+select:disabled {
+  background: #eeeeee;
+  color: black;
+}
+
+table, th {
+    padding:5px;
+}
+
+.deviceTD {
+	width: 160px;
+	text-align: center;
+}
+
+.deviceName {
+	width: 160px;
+	text-align: left;
+}
+
+input[type=radio] {
+    margin-left: 20px;
+}
+
+#Bank {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.digitalClock {
+    font-size: 65px;
+    height: 255px;
+    padding-top: 120px;
+    font-family: sevenSegmentFont;
+}
+
+.menudigitalclock {
+  float: right;
+  margin-right: 15px;
+  margin-top: 4px
+}
+
+.menudigitalclockoutline {
+  font-family: sevenSegmentFont;
+  border: 2px solid #0000;
+  padding: 3px;
+  border-radius: 2px;
+  border-width: 4px;
+  border-color: steelblue;
+  background-color:#333;
+  width: 75px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  text-align: center;
+  color: red;
+}
+
+.digitalclockoutline {
+  border: 2px solid #0000;
+  padding: 20px;
+  border-radius: 20px;
+  border-width: 6px;
+  border-color: steelblue;
+  background-color: #333;
+  width: 85%;
+  margin-left: -25px;
+  text-align: center;
+  color: red;
+  font-size: 70px;
+}
+
+.menuclockcanvasclass {
+  background-color: #555555;
+  float: right;
+  margin-right: 10px;
+  margin-top: 4px;
+}
+
+.tablecell {
+  padding:0 15 0 15;
+}
+
+.disabled_input {
+  color: black;
+  -webkit-text-fill-color: rgba(0, 0, 0, 1);
+  -webkit-opacity: 1;
+  background: white;
+}
+
+.config_button {
+  height:27px;
+  border-radius:5px;
+  width:inherit;
+/*  overflow:hidden;*/
+}
+
+.config_swap_button {
+    border-style: none;
+    padding: 0px;
+    background: none;
+    color: black;
+}
+
+.config_image_button {
+  width:35px;
+  height:27px;
+  border-radius:5px;
+}
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 100; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.event-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 360px;
+  border-radius: 15px;
+  z-index:10;
+}
+
+.time-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 24%;
+  border-radius: 15px;
+  z-index:10;
+}
+
+.colour-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 320px;
+  border-radius: 15px;
+  z-index:10;
+}
+
+.wizard-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 10px;
+  border: 1px solid #888;
+  width: 450px;
+  border-radius: 15px;
+  z-index:10;
+}
+
+.integer-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 220px;
+  border-radius: 15px;
+  z-index:20;
+}
+
+.servo-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 550px;
+  border-radius: 15px;
+  z-index:10;
+}
+
+.mimiclist-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 260px;
+  border-radius: 15px;
+  z-index:20;
+}
+
+.soundlist-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 500px;
+  border-radius: 15px;
+  z-index:20;
+}
+
+.sound-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 550px;
+  border-radius: 15px;
+  z-index:10;
+}
+
+.file-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 350px;
+  border-radius: 15px;
+  z-index:10;
+  overflow: hidden;
+}
+
+.mimic-range-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 220px;
+  border-radius: 15px;
+  z-index:100;
+}
+
+.light-range-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 265px;
+  border-radius: 15px;
+  z-index:5;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  top: -10px;
+  left: 110%;
+  white-space: nowrap;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 70%;
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent black transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.scrollbox {
+  overflow: auto;
+  max-height: 200px;
+  height: 200px;
+
+  background:
+    /* Shadow covers */
+    linear-gradient(white 30%, rgba(255,255,255,0)),
+    linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+    
+    /* Shadows */
+    radial-gradient(50% 0, farthest-side, rgba(0,0,0,.2), rgba(0,0,0,0)),
+    radial-gradient(50% 100%,farthest-side, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
+  background:
+    /* Shadow covers */
+    linear-gradient(white 30%, rgba(255,255,255,0)),
+    linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+    
+    /* Shadows */
+    radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
+    radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
+  background-repeat: no-repeat;
+  background-color: white;
+  background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+  
+  background-attachment: local, local, scroll, scroll;
+}
+</style>

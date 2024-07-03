@@ -1,0 +1,9 @@
+[Unit]
+Description=Modulus Primary Clock shell script
+Requires=mosquitto.service
+
+[Service]
+ExecStart=/home/sms/clock_subsystem/primary_clock.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Modulus JMRI interface shell script
+Requires=mosquitto.service
+
+[Service]
+ExecStart=/home/sms/jmri_subsystem/jmri_interface.sh
+
+[Install]
+WantedBy=multi-user.target
