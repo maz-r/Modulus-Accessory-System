@@ -88,12 +88,15 @@ var fieldRange = [
   ],
   [],
   [],
-  [],
+  [[["Trigger Event"],["85px"],['W']],
+   [["Type"],["125px"],['A'],[1],[100],[1],[0]],
+   [["Pulse Length"],["85px"],['I'],[1],[100],[1],[0]],
+  ],
   [[["Trigger Event"],["85px"],['E']],
-   [["Servo No"],["50px"],['S']],
+   [["Channel No"],["50px"],['S']],
    [["Delay"],["50px"],['I'],[0],[999],[0]],
    [["Event Before"],["85px"],['D']],
-   [["Position"],["95px"],['Y'],[1],[180],[90]],
+   [["Type/Action"],["95px"],['Y'],[1],[180],[90]],
    [["Speed"],["50px"],['I'],[0],[200],[8]],
    [["Event After"],["85px"],['D']],
    [["Profile"],["90px"],['P']],
@@ -111,10 +114,7 @@ var fieldRange = [
    [["Interval"],["85px"],['I'],[0],[200],[50],[0]],
    [["LED to duplicate"],["30px"],['I'],[0],[99],[0]]
   ],
-  [[["Trigger Event"],["85px"],['E']],
-   [["Relay No"],["85px"],['R']],
-   [["Action"],["85px"],['A']],
-   [["Pulse Length"],["85px"],['I'],[1],[100],[1],[0]]
+  [
   ],
   [[["Trigger Event"],["85px"],['E']],
    [["Stepper No"],["50px"],['<']],
@@ -283,7 +283,7 @@ function clearDebugArea()
 
 function clearConfigLines(tableNumber)
 {
-  if (tableNumber == "04" || tableNumber == "05" || tableNumber == "06" || tableNumber == "07" || tableNumber == "09" || tableNumber == "12" || tableNumber == "16")
+  if (tableNumber == "03" || tableNumber == "04" || tableNumber == "05" || tableNumber == "06" || tableNumber == "07" || tableNumber == "09" || tableNumber == "12" || tableNumber == "16")
   {
     var configTableName = "ConfigTable" + tableNumber;
     var configTable = document.getElementById(configTableName);
@@ -300,16 +300,27 @@ function clearConfigLines(tableNumber)
     for (var i=0; i<rowFields; i++)
     {
       var cell = row.insertCell();
-      cell.innerHTML = fieldRange[tableID][i][0];
-      cell.style.width = fieldRange[tableID][i][1][0];
+      if (fieldRange[tableID][i].length > 0)
+      {
+        cell.innerHTML = fieldRange[tableID][i][0];
+        cell.style.width = fieldRange[tableID][i][1][0];
+      }
     }
   }
 }
 
-function usageLineHeadings(configTable, tableID)
+function usageLineHeadings(boardType, configTable, tableID)
 {
   var tableID = parseInt(tableID);
   var row = configTable.insertRow(-1);
+  
+  if (boardType == 3)
+  {
+    var cell = row.insertCell();
+    cell.innerHTML = "Number";
+    cell.style.width = "85px";
+  }
+  
   var rowFields = fieldRange[tableID].length;
 
   var cell = row.insertCell();
@@ -339,11 +350,23 @@ function manipulateRows(currentRow, moduleType, action)
   switch(action)
   {
     case "Renumber":
-      var count = configTable.rows.length;
-      for(var i=1; i<count; i++)
+        var count = configTable.rows.length;
+      if (moduleType == 3)
       {
-        var x = configTable.rows[i];
-        x.childNodes[1].innerText = i;
+        count--;
+        for(var i=0; i<count; i++)
+        {
+          var x = configTable.rows[i+1];
+          x.childNodes[1].innerText = i;
+        }
+      }
+      else
+      {
+        for(var i=1; i<count; i++)
+        {
+          var x = configTable.rows[i];
+          x.childNodes[1].innerText = i;
+        }
       }
       break;
 
@@ -459,437 +482,447 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
 
   if (!usage)
   {
-    cell = row.insertCell();
-    cell.style.width = "20px";
-    if (topRow != row.id)
+    if (!(boardType == 3))
     {
-      cell.innerHTML = "<button title='Swap this row with the one above it' class='config_swap_button' id='swapRow_button"+rowNumber+"' onclick='manipulateRows("+rowNumber+","+boardType+", \"Swap\")'><span style=\"font-family:icons;font-size: 20px;\">&#xeac5;</span></button>";
+      cell = row.insertCell();
+      cell.style.width = "20px";
+      if (topRow != row.id)
+      {
+        cell.innerHTML = "<button title='Swap this row with the one above it' class='config_swap_button' id='swapRow_button"+rowNumber+"' onclick='manipulateRows("+rowNumber+","+boardType+", \"Swap\")'><span style=\"font-family:icons;font-size: 20px;\">&#xeac5;</span></button>";
+      }
+      cell = row.insertCell();
+      cell.style.width = "20px";
+      cell.innerHTML = '<input disabled id="row_number_'+boardType+'_rowLabel-'+rowNumber+'" style="width:100%">';
     }
-    cell = row.insertCell();
-    cell.style.width = "20px";
-    cell.innerHTML = '<input disabled id="row_number_'+boardType+'_rowLabel-'+rowNumber+'" style="width:100%">';
+    else
+    {
+      cell = row.insertCell(0);
+      cell.style.width = "20px";
+      cell.innerHTML = '<input disabled id="row_number_'+boardType+'_rowLabel-'+rowNumber+'" style="width:100%">';
+      cell = row.insertCell(0);
+    }
   }
   else
   {
-    fieldIndex = 2;
-    disabledStr = "disabled";
-    uniqueID = tableToPopulate.id;
+    if (boardType == 3)
+    {
+      cell = row.insertCell(0);
+      cell.style.width = "20px";
+      cell.innerHTML = '<input disabled id="row_number_'+boardType+'_rowLabel-'+rowNumber+'" style="width:100%">';
+      fieldIndex = 3;
+      disabledStr = "disabled";
+      uniqueID = tableToPopulate.id;
+    }
+    else
+    {
+      fieldIndex = 2;
+      disabledStr = "disabled";
+      uniqueID = tableToPopulate.id;
+    }
   }
 
   for (var i=0; i<rowFields; i++)
   {
-    var newCell = row.insertCell();
-
-    switch(fieldRange[boardType][i][2][0])
+    if (fieldRange[boardType][i].length > 0)
     {
-      case 'D':
-      case 'E':
-        var ConfigString = "";
-        if (ConfigDetails[fieldIndex] != "")
-        {
-          if (((ConfigDetails[fieldIndex].charCodeAt(0,1)) & 128) != 0)
-          {
-            var LowRangeHoursTens = ((ConfigDetails[fieldIndex].charCodeAt(0,1) & 127) >> 4);
-            var LowRangeHoursUnits = ConfigDetails[fieldIndex].charCodeAt(0,1) & 15;
-            var HighRangeHoursTens = ((ConfigDetails[fieldIndex].charCodeAt(1,1) & 127) >> 4);
-            var HighRangeHoursUnits = ConfigDetails[fieldIndex].charCodeAt(1,1) & 15;
+      var newCell = row.insertCell();
 
-            toolTipString = "";
-            ConfigVal = ConfigDetails[fieldIndex];
-            ConfigString = "" + LowRangeHoursTens + LowRangeHoursUnits + "->";
-            ConfigString += "" + HighRangeHoursTens + HighRangeHoursUnits + ":";
-            ConfigString += "" + ConfigDetails[fieldIndex].substr(2,2);
-          }
+      switch(fieldRange[boardType][i][2][0])
+      {
+        case '#':
+//          var newInnerHTML = '<input id="editInputPopup_button'+rowNumber+'" style="width:40px;" onclick="openLabelEventPopup(\'Event to trigger on input\', this);" value='+ConfigDetails[fieldIndex]+'>';
+  //        var newInnerHTML = '<button '+disabledStr+' class="config_button tooltip" id="editEventPopup_button'+uniqueID+rowNumber+'" onclick="openEventPopup(\''+fieldRange[boardType][i][2][0]+'\', this);" value="' + ConfigDetails[i] + '">' + ConfigString;
+  //        if (toolTipString != ConfigDetails[i].substr(1,3))
+  //          newInnerHTML += '<span class="tooltiptext">' + toolTipString + '</span>';
+  //        newInnerHTML += '</button>';
+          newCell.innerHTML = rowNumber;
+//          fieldIndex++;
+          break;
+
+        case 'W':
+          var newInnerHTML = '<input '+disabledStr+' id="editInputPopup_button'+uniqueID+rowNumber+'" style="width:40px;" onclick="openLabelEventPopup(\'Event to trigger on input\', this);" value='+ConfigDetails[fieldIndex]+'>';
+  //        var newInnerHTML = '<button '+disabledStr+' class="config_button tooltip" id="editEventPopup_button'+uniqueID+rowNumber+'" onclick="openEventPopup(\''+fieldRange[boardType][i][2][0]+'\', this);" value="' + ConfigDetails[i] + '">' + ConfigString;
+  //        if (toolTipString != ConfigDetails[i].substr(1,3))
+  //          newInnerHTML += '<span class="tooltiptext">' + toolTipString + '</span>';
+  //        newInnerHTML += '</button>';
+          newCell.innerHTML += newInnerHTML;
+          fieldIndex++;
+          break;
+
+        case 'A':
+          if (rowNumber % 2 == 1)
+            newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="InputType'+uniqueID+rowNumber+'" onChange="updateInputRow('+rowNumber+')";><option value=0>Normal</option><option value=1>Toggle</option><option value=2>Pair</option><option value=3>Timed Pulse</option></select>';
           else
+            newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="InputType'+uniqueID+rowNumber+'" onChange="updateInputRow('+rowNumber+')"><option value=0>Normal</option><option value=1>Toggle</option><option disabled value=2>Pair</option><option value=3>Timed Pulse</option></select>';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
           {
-            if (isDigit(ConfigDetails[fieldIndex].substr(0,1)) || ConfigDetails[fieldIndex].substr(0,1) == '?' || ConfigDetails[fieldIndex].substr(0,1) == '#')
-            {
-              toolTipString = ConfigDetails[fieldIndex].substr(1,3);
-              if (parseInt(ConfigDetails[fieldIndex].substr(0,1)) >= 3)
-              {
-                var ConfigVal = parseInt(ConfigDetails[fieldIndex].substr(0,2));
-                var ConfigStr = "00" + (ConfigVal - 30);
-                ConfigString += ConfigStr.substr(ConfigStr.length - 2);
-                ConfigString +="h->";
+            ConfigDetails[fieldIndex] = 0;
+          }
+          var option = $('#InputType'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
 
-                ConfigVal = parseInt(ConfigDetails[fieldIndex].substr(2,4));
-                ConfigStr = "00" + (ConfigVal - 30);
-                ConfigString += ConfigStr.substr(ConfigStr.length - 2);
-                ConfigString +="h";
-              }
-              else
-              {
-                ConfigString = ConfigDetails[fieldIndex].substr(0,2)+":"+ConfigDetails[fieldIndex].substr(2,4);
-                toolTipString = ConfigDetails[fieldIndex].substr(1,3);
-              }
+        case 'D':
+        case 'E':
+          var ConfigString = "";
+          if (ConfigDetails[fieldIndex] != "")
+          {
+            if (ConfigDetails[fieldIndex].charCodeAt(0,1) > 'a'.charCodeAt(0))
+            {
+              var LowRangeHoursTens = ConfigDetails[fieldIndex].charCodeAt(0,1) - 'a'.charCodeAt(0);
+              var LowRangeHours = ("0" + LowRangeHoursTens).substr(-2);
+              var HighRangeHoursTens = ConfigDetails[fieldIndex].charCodeAt(1,1) - 'a'.charCodeAt(0);
+              var HighRangeHours = ("0" + HighRangeHoursTens).substr(-2);
+
+              toolTipString = "";
+              ConfigVal = ConfigDetails[fieldIndex];
+              ConfigString = "" + LowRangeHours + "->";
+              ConfigString += "" + HighRangeHours + ":";
+              ConfigString += "" + ConfigDetails[fieldIndex].substr(2,2);
             }
             else
             {
-              if (ConfigDetails[fieldIndex] == "INIT")
+              if (isDigit(ConfigDetails[fieldIndex].substr(0,1)) || ConfigDetails[fieldIndex].substr(0,1) == '?' || ConfigDetails[fieldIndex].substr(0,1) == '#')
               {
-                ConfigString =  "On Startup";
                 toolTipString = ConfigDetails[fieldIndex].substr(1,3);
+                if (parseInt(ConfigDetails[fieldIndex].substr(0,1)) >= 3)
+                {
+                  var ConfigVal = parseInt(ConfigDetails[fieldIndex].substr(0,2));
+                  var ConfigStr = "00" + (ConfigVal - 30);
+                  ConfigString += ConfigStr.substr(ConfigStr.length - 2);
+                  ConfigString +="h->";
+
+                  ConfigVal = parseInt(ConfigDetails[fieldIndex].substr(2,4));
+                  ConfigStr = "00" + (ConfigVal - 30);
+                  ConfigString += ConfigStr.substr(ConfigStr.length - 2);
+                  ConfigString +="h";
+                }
+                else
+                {
+                  ConfigString = ConfigDetails[fieldIndex].substr(0,2)+":"+ConfigDetails[fieldIndex].substr(2,4);
+                  toolTipString = ConfigDetails[fieldIndex].substr(1,3);
+                }
               }
               else
               {
-                if (ConfigDetails[fieldIndex].substr(0,1) == "D")
+                if (ConfigDetails[fieldIndex] == "INIT")
                 {
-                  ConfigString =  "[" + ConfigDetails[fieldIndex].substr(1,2) + "] " + ConfigDetails[fieldIndex].substr(3);
+                  ConfigString =  "On Startup";
                   toolTipString = ConfigDetails[fieldIndex].substr(1,3);
                 }
                 else
                 {
-                  ConfigString = ConfigDetails[fieldIndex].substr(1,3);
-                  toolTipString = decodeLabel(ConfigString);
-                  if (ConfigDetails[fieldIndex].substr(0,1) == 'S')
+                  if (ConfigDetails[fieldIndex].substr(0,1) == "D")
                   {
-                    ConfigString +=  " On";
+                    ConfigString =  "[" + ConfigDetails[fieldIndex].substr(1,2) + "] " + ConfigDetails[fieldIndex].substr(3);
+                    toolTipString = ConfigDetails[fieldIndex].substr(1,3);
                   }
                   else
                   {
-                    ConfigString +=  " Off";
+                    ConfigString = ConfigDetails[fieldIndex].substr(1,3);
+                    toolTipString = decodeLabel(ConfigString);
+                    if (ConfigDetails[fieldIndex].substr(0,1) == 'S')
+                    {
+                      ConfigString +=  " On";
+                    }
+                    else
+                    {
+                      ConfigString +=  " Off";
+                    }
                   }
                 }
               }
             }
           }
-        }
-        else
-        {
-          ConfigString = "";
-          toolTipString = "";
-        }
-
-        var newInnerHTML = '<button '+disabledStr+' class="config_button tooltip" id="editEventPopup_button'+uniqueID+rowNumber+'" onclick="openEventPopup(\''+fieldRange[boardType][i][2][0]+'\', this);" value="' + ConfigDetails[i] + '">' + ConfigString;
-        if (toolTipString != ConfigDetails[i].substr(1,3))
-          newInnerHTML += '<span class="tooltiptext">' + toolTipString + '</span>';
-        newInnerHTML += '</button>';
-        newCell.innerHTML += newInnerHTML;
-        fieldIndex++;
-        break;
-
-      case 'T':
-        newCell.innerHTML = '<input '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" style="width:100%" value="'+ConfigDetails[fieldIndex]+'">';
-        fieldIndex++;
-        break;
-
-
-      case 'B':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ServoBounceNumber'+uniqueID+rowNumber+'" onchange="ConfigServoBounceTransitionChange('+boardType+','+rowNumber+');"><option value=\'0\'>None</option><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'">5</option><option value=\'R\'">Random</option></select>';
-        if (typeof(ConfigDetails[fieldIndex]) == "undefined")
-        {
-          ConfigDetails[fieldIndex] = 0;
-        }
-        var option = $('#ServoBounceNumber'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'P':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ServoWaveform'+uniqueID+rowNumber+'"><option value=0>Linear</option><option value=1>Logrithmic</option><option value=2>Hyperbolic</option><option value=3>Gravity</option><option value=4>Slack</option></select>';
-        if (typeof(ConfigDetails[fieldIndex]) == "undefined")
-        {
-          ConfigDetails[fieldIndex] = 0;
-        }
-        var option = $('#ServoWaveform'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'Z':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="SoundChannel_'+boardType+"_"+uniqueID+rowNumber+'"><option value=0>0</option><option value=1>1</option><option value=99>Least Busy</option></select>';
-        if (typeof(ConfigDetails[fieldIndex]) == "undefined")
-        {
-          ConfigDetails[fieldIndex] = 0;
-        }
-        var option = $('#SoundChannel_'+boardType+"_"+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        if (option.length == 1)
-          option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'V':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="SoundChannel_'+boardType+"_"+uniqueID+rowNumber+'"><option value=0>0</option><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=99>Least Busy</option></select>';
-        if (typeof(ConfigDetails[fieldIndex]) == "undefined")
-        {
-          ConfigDetails[fieldIndex] = 0;
-        }
-        var option = $('#SoundChannel_'+boardType+"_"+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        if (option.length == 1)
-          option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'U':
-        newCell.innerHTML = '<input style="display:none" type="text" id="LightingUnique'+uniqueID+rowNumber+'" >';
-        if (typeof(ConfigDetails[fieldIndex]) == "undefined")
-        {
-          ConfigDetails[fieldIndex] = 'G';
-        }
-
-        newCell.firstChild.value = ConfigDetails[fieldIndex];
-
-        fieldIndex++;
-        break;
-
-      case 'O':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ServoBounceWaveform'+uniqueID+rowNumber+'"><option value=0>Bounce</option><option value=1>Settle</option></select>';
-        if (typeof(ConfigDetails[fieldIndex]) == "undefined")
-        {
-          ConfigDetails[fieldIndex] = 0;
-        }
-        var option = $('#ServoBounceWaveform'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'N':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="LightingEffect'+uniqueID+rowNumber+'" onchange="ConfigLightingTypeChange('+boardType+','+uniqueID+rowNumber+');"><option value=\'S\'>Direct</option><option value=\'F\'>Flicker</option><option value=\'R\'>Arc</option><option value=\'Q\'>Cycle</option><option value=\'P\'>Proportional</option></select>';
-        if (typeof(ConfigDetails[fieldIndex]) == "undefined")
-        {
-          ConfigDetails[fieldIndex] = 0;
-        }
-        var option = $('#LightingEffect'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'S':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ServoNumber'+uniqueID+rowNumber+'"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option></select>';
-        var option = $('#ServoNumber'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case '>':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="StepperDirection'+uniqueID+rowNumber+'"><option value="F">Forward</option><option value="B">Backward</option><option value="S">Shortest</option></select>';
-        var option = $('#StepperDirection'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case '<':
-        newCell.innerHTML = '<select disabled style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="StepperNumber'+uniqueID+rowNumber+'"><option value="0">0</option></select>';
-        fieldIndex++;
-        break;
-
-      case 'R':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="RelayNumber'+uniqueID+rowNumber+'"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select>';
-        var option = $('#RelayNumber'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'A':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="RelayAction'+uniqueID+rowNumber+'" onchange="ConfigRelayChange('+boardType+','+uniqueID+rowNumber+');";><option value=0>Off</option><option value=1>On</option><option value="P">Pulse</option><option value="T">Toggle</option></select>';
-        if (typeof(ConfigDetails[fieldIndex]) == "undefined")
-        {
-          ConfigDetails[fieldIndex] = 0;
-        }
-        var option = $('#RelayAction'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'M':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ConfigMimicTransitionType'+uniqueID+rowNumber+'" onchange="ConfigMimicRangeChange(5, '+uniqueID+rowNumber+');" name="ConfigMimicTransitionType'+uniqueID+rowNumber+'"><option value="S">Direct</option><option value="F">Flash</option><option value="M">Fade</option><option value="C">Cycle</option><option value="D">Duplicate</option><option value="Y">Duplicate if EQUAL</option><option value="N">Duplicate if NOT equal</option></select>';
-        var option = $('#ConfigMimicTransitionType'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'W':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ConfigServoWaveformType'+uniqueID+rowNumber+'" name="ConfigServoWaveformType'+uniqueID+rowNumber+'" onchange="ConfigServoWaveformChange('+uniqueID+rowNumber+');"><option value="S">Direct</option><option value="F">Flash</option><option value="M">Fade</option><option value="C">Cycle</option><option value="R">Replicate</option></select>';
-        var option = $('#ConfigMimicTransitionType'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'C':
-        var ConfigString = "";
-        newCell.innerHTML = "<button "+disabledStr+" class='config_button' name='"+uniqueID+rowNumber+"' id='editColour_button"+uniqueID+rowNumber+"-"+i+"' onclick='openColourPopup(this, true);' value='" + ConfigDetails[i] + "'></button>";
-        newCell.firstChild.value = ConfigDetails[fieldIndex];
-
-        if (ConfigDetails[fieldIndex] == "::")
-          setColourButton(newCell.firstChild, true);
-        else
-          setColourButton(newCell.firstChild, false);
-
-        fieldIndex++;
-        break;
-
-      case '2':
-        var ConfigString = "";
-        newCell.innerHTML = "<button "+disabledStr+" class='config_button' name='"+uniqueID+rowNumber+"' id='editColour_button"+uniqueID+rowNumber+"-"+i+"' onclick='openColourPopup(this, false);' value=''>";
-        newCell.firstChild.value = ConfigDetails[fieldIndex];
-        setColourButton(newCell.firstChild, false);
-        fieldIndex++;
-        break;
-
-      case 'x':
-        newCell.innerHTML = "<button "+disabledStr+" class='config_button' style='background:transparent; border:none;' id='swap_button"+uniqueID+rowNumber+"' onclick='swapColourInputFields("+uniqueID+rowNumber+");'><span style='font-family:icons;font-family:icons;font-size: 22px;color: #0000ff;margin-left: -7px;'>&#xef18;</span></button>";
-        break;
-
-      case 'L':
-        var ConfigString = "";
-        var visibleConfigString = "";
-        var alternating = false;
-        var ConfigDetailsSplitOuter = ConfigDetails[fieldIndex].split("+");
-
-        if (ConfigDetailsSplitOuter[0] == "A")
-          alternating = true;
-
-        for (var k=1; k< ConfigDetailsSplitOuter.length; k++)
-        {
-          var ConfigDetailsSplit = ConfigDetailsSplitOuter[k].split(":");
-          if (k>1)
-          {
-            ConfigString += "+";
-          }
-          if (ConfigDetailsSplit[0] == ConfigDetailsSplit[1])
-            ConfigString += ConfigDetailsSplit[0];
           else
-            ConfigString += ConfigDetailsSplit[0] + ":" + ConfigDetailsSplit[1];
-        }
-
-        if (ConfigString.length > 8)
-        {
-          visibleConfigString = ConfigString.substring(0,7) + "...";
-          toolTipString = ConfigString.replace(/\+/g, "<br />");
-        }
-        else
-        {
-          visibleConfigString = ConfigString;
-          toolTipString = "";
-        }
-
-        if (alternating)
-          visibleConfigString += "<span style='font-family:icons'>&#xefcf;</span>";
-
-        var newInnerHTML = '<button '+disabledStr+' style="color:black;" class="config_button tooltip" name="'+uniqueID+rowNumber+'" id="editMimicList_button'+uniqueID+rowNumber+'" onclick="openMimicListPopup(this,\'LED Range\');" value="' + ConfigDetails[i] + '">' + visibleConfigString;
-
-        if (toolTipString != "")
-          newInnerHTML += '<span class="tooltiptext">' + toolTipString + '</span>';
-        newInnerHTML += '</button>';
-        newCell.innerHTML += newInnerHTML;
-
-        newCell.firstChild.value = ConfigDetails[fieldIndex];
-        fieldIndex++;
-        break;
-
-      case 'K':
-        var ConfigString = "";
-        var ConfigDetailsSplit = ConfigDetails[fieldIndex].split(":");
-        if (ConfigDetailsSplit.length == 2)
-          ConfigString = ConfigDetailsSplit[0] + ":" + ConfigDetailsSplit[1];
-        else
-          ConfigString = ConfigDetailsSplit[0];
-        var newText = '<button '+disabledStr+' class="config_button" name="'+uniqueID+rowNumber+'" id="editLightRange_button'+uniqueID+rowNumber+'" onclick="openLightRangePopup(this, '+uniqueID+rowNumber+', \'Light Range\');" value="' + ConfigDetails[i] + '">' + ConfigString;
-        if (ConfigDetails[fieldIndex + 1] == 'I')
-            newText += " <span style='font-family:icons'>&#xec60</span>";
-        newText += '</button>';
-
-        newCell.innerHTML = newText;
-        newCell.firstChild.value = ConfigDetails[fieldIndex];
-        fieldIndex++;
-        break;
-
-      case 'I':
-        newCell.innerHTML = '<input '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openIntegerPopup(this, '+fieldRange[boardType][i][3]+','+fieldRange[boardType][i][4]+',\''+fieldRange[boardType][i][0]+'\')">';
-        if (ConfigDetails[fieldIndex] === undefined)
-          newCell.firstChild.value = fieldRange[boardType][i][5];
-        else
-          newCell.firstChild.value = ConfigDetails[fieldIndex];
-        fieldIndex++;
-        break;
-
-      case 'Y':
-        newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openServoPopup(this,'+boardType+','+uniqueID+rowNumber+',\'Servo Action\');" value=""></button>';
-        if (ConfigDetails[fieldIndex] === undefined)
-          newCell.firstChild.value = fieldRange[boardType][i][5];
-        else
-        {
-          newCell.firstChild.value = ConfigDetails[fieldIndex];
-          newCell.firstChild.innerHTML = DecodeServoPosition(ConfigDetails[fieldIndex].substring(0,1), ConfigDetails[fieldIndex].substring(1));
-        }
-        fieldIndex++;
-        break;
-
-      case 'Q':
-        newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" onchange="ConfigSoundChange('+boardType+','+uniqueID+rowNumber+');" id="soundQueueType_'+boardType+"_"+uniqueID+rowNumber+'"><option value="N">Next</option><option value="Q">Queue</option><option value="I">Immediate</option><option value="R">Random</option><option value="=">Set variable</select>';
-        if (typeof(ConfigDetails[fieldIndex]) == "undefined")
-        {
-          ConfigDetails[fieldIndex] = 0;
-        }
-        var option = $('#soundQueueType_'+boardType+"_"+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
-        if (option.length == 1)
-          option[0].selected = true;
-        fieldIndex++;
-        break;
-
-      case 'F':
-        newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openSoundPopup(this);" value=""></button>';
-        if (ConfigDetails[fieldIndex] === undefined)
-          newCell.firstChild.value = "";
-        else
-       {
-          newCell.firstChild.value = ConfigDetails[fieldIndex];
-          newCell.firstChild.innerHTML = generateSoundText(ConfigDetails[fieldIndex]);
-        }
-        fieldIndex++;
-        break;
-
-      case 'G':
-        newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openSoundPopup(this);" value=""></button>';
-        newCell.innerHTML += '<span id="sound_label_'+boardType+"_"+uniqueID+rowNumber+'"> to <span>';
-        if (ConfigDetails[fieldIndex] === undefined)
-          newCell.firstChild.value = "";
-        else
-        {
-          newCell.firstChild.value = ConfigDetails[fieldIndex];
-          newCell.firstChild.innerHTML = generateSoundText(ConfigDetails[fieldIndex]);
-        }
-        // fieldIndex++;
-        break;
-
-      case 'H':
-        newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openSoundPopup(this);" value=""></button>';
-        newCell.innerHTML += "<select "+disabledStr+" id='Variable_"+boardType+"_"+uniqueID+rowNumber+"'><option value='$A'>A</option><option value='$B'>B</option><option value='$C'>C</option><option value='$D'>D</option><option value='$E'>E</option><option value='$F'>F</option><option value='$G'>G</option><option value='$H'>H</option><option value='$I'>I</option><option value='$J'>J</option><option value='$K'>K</option><option value='$L'>L</option><option value='$M'>M</option><option value='$N'>N</option><option value='$O'>O</option><option value='$P'>P</option><option value='$Q'>Q</option><option value='$R'>R</option><option value='$S'>S</option><option value='$T'>T</option><option value='$U'>U</option><option value='$V'>V</option><option value='$W'>W</option><option value='$X'>X</option><option value='$Y'>Y</option><option value='$Z'>Z</option></select>";
-        if (ConfigDetails[fieldIndex-2] === undefined)
-        {
-          newCell.firstChild.value = "";
-        }
-        else
-        {
-          // document.getElementById("Variable"+uniqueID+rowNumber).value = "0";
-          var option = $('#Variable_'+boardType+"_"+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex-1] +'"]');
-          var qType = document.getElementById('soundQueueType_'+boardType+"_"+uniqueID+rowNumber).value;
-          if (qType == '=' && option.length > 0)
           {
-            option[0].selected = true;
-            newCell.firstChild.value = "";
+            ConfigString = "";
+            toolTipString = "";
           }
+
+          var newInnerHTML = '<button '+disabledStr+' class="config_button tooltip" id="editEventPopup_button'+uniqueID+rowNumber+'" onclick="openEventPopup(\''+fieldRange[boardType][i][2][0]+'\', this);" value="' + ConfigDetails[i] + '">' + ConfigString;
+          if (toolTipString != ConfigDetails[i].substr(1,3))
+            newInnerHTML += '<span class="tooltiptext">' + toolTipString + '</span>';
+          newInnerHTML += '</button>';
+          newCell.innerHTML += newInnerHTML;
+          fieldIndex++;
+          break;
+
+        case 'T':
+          newCell.innerHTML = '<input '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" style="width:100%" value="'+ConfigDetails[fieldIndex]+'">';
+          fieldIndex++;
+          break;
+
+
+        case 'B':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ServoBounceNumber'+uniqueID+rowNumber+'" onchange="ConfigServoBounceTransitionChange('+boardType+','+rowNumber+');"><option value=\'0\'>None</option><option value=\'1\'>1</option><option value=\'2\'>2</option><option value=\'3\'>3</option><option value=\'4\'>4</option><option value=\'5\'">5</option><option value=\'R\'">Random</option></select>';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
+          {
+            ConfigDetails[fieldIndex] = 0;
+          }
+          var option = $('#ServoBounceNumber'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case 'P':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ServoWaveform'+uniqueID+rowNumber+'"><option value=0>Linear</option><option value=1>Logrithmic</option><option value=2>Hyperbolic</option><option value=3>Gravity</option><option value=4>Slack</option></select>';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
+          {
+            ConfigDetails[fieldIndex] = 0;
+          }
+          var option = $('#ServoWaveform'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case 'Z':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="SoundChannel_'+boardType+"_"+uniqueID+rowNumber+'"><option value=0>0</option><option value=1>1</option><option value=99>Least Busy</option></select>';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
+          {
+            ConfigDetails[fieldIndex] = 0;
+          }
+          var option = $('#SoundChannel_'+boardType+"_"+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          if (option.length == 1)
+            option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case 'V':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="SoundChannel_'+boardType+"_"+uniqueID+rowNumber+'"><option value=0>0</option><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=99>Least Busy</option></select>';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
+          {
+            ConfigDetails[fieldIndex] = 0;
+          }
+          var option = $('#SoundChannel_'+boardType+"_"+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          if (option.length == 1)
+            option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case 'U':
+          newCell.innerHTML = '<input style="display:none" type="text" id="LightingUnique'+uniqueID+rowNumber+'" >';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
+          {
+            ConfigDetails[fieldIndex] = 'G';
+          }
+
+          newCell.firstChild.value = ConfigDetails[fieldIndex];
+
+          fieldIndex++;
+          break;
+
+        case 'O':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ServoBounceWaveform'+uniqueID+rowNumber+'"><option value=0>Bounce</option><option value=1>Settle</option></select>';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
+          {
+            ConfigDetails[fieldIndex] = 0;
+          }
+          var option = $('#ServoBounceWaveform'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case 'N':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="LightingEffect'+uniqueID+rowNumber+'" onchange="ConfigLightingTypeChange('+boardType+','+uniqueID+rowNumber+');"><option value=\'S\'>Direct</option><option value=\'F\'>Flicker</option><option value=\'R\'>Arc</option><option value=\'Q\'>Cycle</option><option value=\'P\'>Proportional</option></select>';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
+          {
+            ConfigDetails[fieldIndex] = 0;
+          }
+          var option = $('#LightingEffect'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case 'S':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ServoNumber'+uniqueID+rowNumber+'"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option></select>';
+          var option = $('#ServoNumber'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case '>':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="StepperDirection'+uniqueID+rowNumber+'"><option value="F">Forward</option><option value="B">Backward</option><option value="S">Shortest</option></select>';
+          var option = $('#StepperDirection'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case '<':
+          newCell.innerHTML = '<select disabled style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="StepperNumber'+uniqueID+rowNumber+'"><option value="0">0</option></select>';
+          fieldIndex++;
+          break;
+/*
+        case 'R':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="RelayNumber'+uniqueID+rowNumber+'"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select>';
+          var option = $('#RelayNumber'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case 'A':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="RelayAction'+uniqueID+rowNumber+'" onchange="ConfigRelayChange('+boardType+','+uniqueID+rowNumber+');";><option value=0>Off</option><option value=1>On</option><option value="P">Pulse</option><option value="T">Toggle</option></select>';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
+          {
+            ConfigDetails[fieldIndex] = 0;
+          }
+          var option = $('#RelayAction'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+*/
+        case 'M':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ConfigMimicTransitionType'+uniqueID+rowNumber+'" onchange="ConfigMimicRangeChange(5, '+uniqueID+rowNumber+');" name="ConfigMimicTransitionType'+uniqueID+rowNumber+'"><option value="S">Direct</option><option value="F">Flash</option><option value="M">Fade</option><option value="C">Cycle</option><option value="D">Duplicate</option><option value="Y">Duplicate if EQUAL</option><option value="N">Duplicate if NOT equal</option></select>';
+          var option = $('#ConfigMimicTransitionType'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case 'W':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ConfigServoWaveformType'+uniqueID+rowNumber+'" name="ConfigServoWaveformType'+uniqueID+rowNumber+'" onchange="ConfigServoWaveformChange('+uniqueID+rowNumber+');"><option value="S">Direct</option><option value="F">Flash</option><option value="M">Fade</option><option value="C">Cycle</option><option value="R">Replicate</option></select>';
+          var option = $('#ConfigMimicTransitionType'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case 'C':
+          var ConfigString = "";
+          newCell.innerHTML = "<button "+disabledStr+" class='config_button' name='"+uniqueID+rowNumber+"' id='editColour_button"+uniqueID+rowNumber+"-"+i+"' onclick='openColourPopup(this, true);' value='" + ConfigDetails[i] + "'></button>";
+          newCell.firstChild.value = ConfigDetails[fieldIndex];
+
+          if (ConfigDetails[fieldIndex] == "::")
+            setColourButton(newCell.firstChild, true);
+          else
+            setColourButton(newCell.firstChild, false);
+
+          fieldIndex++;
+          break;
+
+        case '2':
+          var ConfigString = "";
+          newCell.innerHTML = "<button "+disabledStr+" class='config_button' name='"+uniqueID+rowNumber+"' id='editColour_button"+uniqueID+rowNumber+"-"+i+"' onclick='openColourPopup(this, false);' value=''>";
+          newCell.firstChild.value = ConfigDetails[fieldIndex];
+          setColourButton(newCell.firstChild, false);
+          fieldIndex++;
+          break;
+
+        case 'x':
+          newCell.innerHTML = "<button "+disabledStr+" class='config_button' style='background:transparent; border:none;' id='swap_button"+uniqueID+rowNumber+"' onclick='swapColourInputFields("+uniqueID+rowNumber+");'><span style='font-family:icons;font-family:icons;font-size: 22px;color: #0000ff;margin-left: -7px;'>&#xef18;</span></button>";
+          break;
+
+        case 'L':
+          var ConfigString = "";
+          var visibleConfigString = "";
+          var alternating = false;
+          var ConfigDetailsSplitOuter = ConfigDetails[fieldIndex].split("+");
+
+          if (ConfigDetailsSplitOuter[0] == "A")
+            alternating = true;
+
+          for (var k=1; k< ConfigDetailsSplitOuter.length; k++)
+          {
+            var ConfigDetailsSplit = ConfigDetailsSplitOuter[k].split(":");
+            if (k>1)
+            {
+              ConfigString += "+";
+            }
+            if (ConfigDetailsSplit[0] == ConfigDetailsSplit[1])
+              ConfigString += ConfigDetailsSplit[0];
+            else
+              ConfigString += ConfigDetailsSplit[0] + ":" + ConfigDetailsSplit[1];
+          }
+
+          if (ConfigString.length > 8)
+          {
+            visibleConfigString = ConfigString.substring(0,7) + "...";
+            toolTipString = ConfigString.replace(/\+/g, "<br />");
+          }
+          else
+          {
+            visibleConfigString = ConfigString;
+            toolTipString = "";
+          }
+
+          if (alternating)
+            visibleConfigString += "<span style='font-family:icons'>&#xefcf;</span>";
+
+          var newInnerHTML = '<button '+disabledStr+' style="color:black;" class="config_button tooltip" name="'+uniqueID+rowNumber+'" id="editMimicList_button'+uniqueID+rowNumber+'" onclick="openMimicListPopup(this,\'LED Range\');" value="' + ConfigDetails[i] + '">' + visibleConfigString;
+
+          if (toolTipString != "")
+            newInnerHTML += '<span class="tooltiptext">' + toolTipString + '</span>';
+          newInnerHTML += '</button>';
+          newCell.innerHTML += newInnerHTML;
+
+          newCell.firstChild.value = ConfigDetails[fieldIndex];
+          fieldIndex++;
+          break;
+
+        case 'K':
+          var ConfigString = "";
+          var ConfigDetailsSplit = ConfigDetails[fieldIndex].split(":");
+          if (ConfigDetailsSplit.length == 2)
+            ConfigString = ConfigDetailsSplit[0] + ":" + ConfigDetailsSplit[1];
+          else
+            ConfigString = ConfigDetailsSplit[0];
+          var newText = '<button '+disabledStr+' class="config_button" name="'+uniqueID+rowNumber+'" id="editLightRange_button'+uniqueID+rowNumber+'" onclick="openLightRangePopup(this, '+uniqueID+rowNumber+', \'Light Range\');" value="' + ConfigDetails[i] + '">' + ConfigString;
+          if (ConfigDetails[fieldIndex + 1] == 'I')
+              newText += " <span style='font-family:icons'>&#xec60</span>";
+          newText += '</button>';
+
+          newCell.innerHTML = newText;
+          newCell.firstChild.value = ConfigDetails[fieldIndex];
+          fieldIndex++;
+          break;
+
+        case 'I':
+          newCell.innerHTML = '<input '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openIntegerPopup(this, '+fieldRange[boardType][i][3]+','+fieldRange[boardType][i][4]+',\''+fieldRange[boardType][i][0]+'\')">';
+          if (ConfigDetails[fieldIndex] === undefined)
+            newCell.firstChild.value = fieldRange[boardType][i][5];
+          else
+            newCell.firstChild.value = ConfigDetails[fieldIndex];
+          fieldIndex++;
+          break;
+
+        case 'Y':
+          newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openServoPopup(this,'+boardType+','+uniqueID+rowNumber+',\'Servo Action\');" value=""></button>';
+          if (ConfigDetails[fieldIndex] === undefined)
+            newCell.firstChild.value = fieldRange[boardType][i][5];
           else
           {
             newCell.firstChild.value = ConfigDetails[fieldIndex];
+            newCell.firstChild.innerHTML = DecodeServoPosition(ConfigDetails[fieldIndex].substring(0,1), ConfigDetails[fieldIndex].substring(1));
+          }
+          fieldIndex++;
+          break;
+
+        case 'Q':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" onchange="ConfigSoundChange('+boardType+','+uniqueID+rowNumber+');" id="soundQueueType_'+boardType+"_"+uniqueID+rowNumber+'"><option value="N">Next</option><option value="Q">Queue</option><option value="I">Immediate</option><option value="R">Random</option><option value="=">Set variable</select>';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
+          {
+            ConfigDetails[fieldIndex] = 0;
+          }
+          var option = $('#soundQueueType_'+boardType+"_"+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          if (option.length == 1)
+            option[0].selected = true;
+          fieldIndex++;
+          break;
+
+        case 'F':
+          newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openSoundPopup(this);" value=""></button>';
+          if (ConfigDetails[fieldIndex] === undefined)
+            newCell.firstChild.value = "";
+          else
+         {
+            newCell.firstChild.value = ConfigDetails[fieldIndex];
             newCell.firstChild.innerHTML = generateSoundText(ConfigDetails[fieldIndex]);
           }
-        }
-        fieldIndex++;
-        break;
-
-      case 'J':
-        newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openSoundPopup(this);" value=""></button>';
-        newCell.innerHTML += '<input '+disabledStr+' class="config_button" id="VariableValue_'+boardType+'_'+uniqueID+rowNumber+'" onclick="openIntegerPopup(this, '+fieldRange[boardType][i][3]+','+fieldRange[boardType][i][4]+',\'Set variable to value...\')">';
-        if (ConfigDetails[fieldIndex-1] === undefined)
-        {
-          newCell.firstChild.value = "";
-          document.getElementById("VariableValue_"+boardType+"_"+uniqueID+rowNumber).value = "0";
-        }
-        else
-        {
-          document.getElementById("VariableValue_"+boardType+"_"+uniqueID+rowNumber).value = ConfigDetails[fieldIndex-1];
           fieldIndex++;
+          break;
+
+        case 'G':
+          newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openSoundPopup(this);" value=""></button>';
+          newCell.innerHTML += '<span id="sound_label_'+boardType+"_"+uniqueID+rowNumber+'"> to <span>';
           if (ConfigDetails[fieldIndex] === undefined)
             newCell.firstChild.value = "";
           else
@@ -897,18 +930,72 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
             newCell.firstChild.value = ConfigDetails[fieldIndex];
             newCell.firstChild.innerHTML = generateSoundText(ConfigDetails[fieldIndex]);
           }
-        }
-        fieldIndex++;
-        break;
+          // fieldIndex++;
+          break;
 
-      default:
-        break;
+        case 'H':
+          newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openSoundPopup(this);" value=""></button>';
+          newCell.innerHTML += "<select "+disabledStr+" id='Variable_"+boardType+"_"+uniqueID+rowNumber+"'><option value='$A'>A</option><option value='$B'>B</option><option value='$C'>C</option><option value='$D'>D</option><option value='$E'>E</option><option value='$F'>F</option><option value='$G'>G</option><option value='$H'>H</option><option value='$I'>I</option><option value='$J'>J</option><option value='$K'>K</option><option value='$L'>L</option><option value='$M'>M</option><option value='$N'>N</option><option value='$O'>O</option><option value='$P'>P</option><option value='$Q'>Q</option><option value='$R'>R</option><option value='$S'>S</option><option value='$T'>T</option><option value='$U'>U</option><option value='$V'>V</option><option value='$W'>W</option><option value='$X'>X</option><option value='$Y'>Y</option><option value='$Z'>Z</option></select>";
+          if (ConfigDetails[fieldIndex-2] === undefined)
+          {
+            newCell.firstChild.value = "";
+          }
+          else
+          {
+            // document.getElementById("Variable"+uniqueID+rowNumber).value = "0";
+            var option = $('#Variable_'+boardType+"_"+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex-1] +'"]');
+            var qType = document.getElementById('soundQueueType_'+boardType+"_"+uniqueID+rowNumber).value;
+            if (qType == '=' && option.length > 0)
+            {
+              option[0].selected = true;
+              newCell.firstChild.value = "";
+            }
+            else
+            {
+              newCell.firstChild.value = ConfigDetails[fieldIndex];
+              newCell.firstChild.innerHTML = generateSoundText(ConfigDetails[fieldIndex]);
+            }
+          }
+          fieldIndex++;
+          break;
+
+        case 'J':
+          newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openSoundPopup(this);" value=""></button>';
+          newCell.innerHTML += '<input '+disabledStr+' class="config_button" id="VariableValue_'+boardType+'_'+uniqueID+rowNumber+'" onclick="openIntegerPopup(this, '+fieldRange[boardType][i][3]+','+fieldRange[boardType][i][4]+',\'Set variable to value...\')">';
+          if (ConfigDetails[fieldIndex-1] === undefined)
+          {
+            newCell.firstChild.value = "";
+            document.getElementById("VariableValue_"+boardType+"_"+uniqueID+rowNumber).value = "0";
+          }
+          else
+          {
+            document.getElementById("VariableValue_"+boardType+"_"+uniqueID+rowNumber).value = ConfigDetails[fieldIndex-1];
+            fieldIndex++;
+            if (ConfigDetails[fieldIndex] === undefined)
+              newCell.firstChild.value = "";
+            else
+            {
+              newCell.firstChild.value = ConfigDetails[fieldIndex];
+              newCell.firstChild.innerHTML = generateSoundText(ConfigDetails[fieldIndex]);
+            }
+          }
+          fieldIndex++;
+          break;
+
+        default:
+          break;
+      }
+
+      newCell.style.width = fieldRange[boardType][i][1][0];
+    }
+    else
+    {
+      fieldIndex++;
     }
 
-    newCell.style.width = fieldRange[boardType][i][1][0];
   }
 
-  if (!usage)
+  if (!usage && !(boardType == 3))
   {
     cell = row.insertCell();
     cell.innerHTML = "<button title='Insert a new row below this one' class='config_image_button' style='' id='insertRow_button"+rowNumber+"' onclick='manipulateRows("+rowNumber+","+boardType+", \"Insert\")'><span style=\"font-family:icons;font-size: 17;color: darkblue;\"></span></button>";
@@ -922,6 +1009,10 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
 
   switch (boardType)
   {
+    case 3:
+      updateInputRow(uniqueID+rowNumber);
+      break;
+
     case 4:
       if (updateServoRow(boardType, uniqueID+rowNumber))
         ConfigServoBounceTransitionChange(boardType, uniqueID+rowNumber);
@@ -1146,16 +1237,14 @@ var Processed;
       switch(lastModuleType)
       {
         case "03":
-          for (i=0; i<16; i++)
-          {
-            var inputPopupButtonNumber = "manualinputtype"+i;
-      		  var switchTarget = 'input[name="manualinputtype' + i + '"]:checked';
-            var inputPopupButtonObject = document.querySelector(switchTarget);
-            //inputSwitchType(document.getElementById(inputPopupButtonNumber), i);
-            inputSwitchType(inputPopupButtonObject, i);
-          }
+          // add row numbers
+          manipulateRows(1, lastModuleType, "Renumber");
+          // and procees each row/fields so they show the right things :)
+          var numRows = document.getElementById("ConfigTable03").rows.length;
+          for (i=1; i<numRows;)
+            i += updateInputRow(i);
           break;
-
+        
         case "06":
         case "05":
         case "07":
@@ -1317,7 +1406,7 @@ var Processed;
             option[0].selected = true;
             break;
 
-          case "03":
+          case "99":
             var BankDetails = ConfigDetails[1];
             var num = parseInt(ConfigDetails[2]);
             if (num < 10)
@@ -1345,7 +1434,8 @@ var Processed;
             }
 
             // inputSwitchType(document.getElementById(inputPopupButtonNumber), rowsReceived - 1);
-            document.getElementById("inputButtons").style.display = "block";
+            // document.getElementById("inputButtons").style.display = "block";
+            populateRow(currentRow, 3, message.payloadString.substr(3), false);
             break;
 
           case "06":
@@ -1357,7 +1447,7 @@ var Processed;
             var row = configTable.insertRow(-1);
             row.id = "configRow" + ConfigDetails[0] + "_" +currentRow;
 
-            populateRow(currentRow, 6, message.payloadString.substr(3), false)
+            populateRow(currentRow, 6, message.payloadString.substr(3), false);
 
             break;
 
@@ -1370,7 +1460,7 @@ var Processed;
             var row = configTable.insertRow(-1);
             row.id = "configRow" + ConfigDetails[0] + "_" +currentRow;
 
-            populateRow(currentRow, 5, message.payloadString.substr(3), false)
+            populateRow(currentRow, 5, message.payloadString.substr(3), false);
 
             break;
 
@@ -1383,7 +1473,7 @@ var Processed;
             var row = configTable.insertRow(-1);
             row.id = "configRow" + ConfigDetails[0] + "_" +currentRow;
 
-            populateRow(currentRow, 7, message.payloadString.substr(3), false)
+            populateRow(currentRow, 7, message.payloadString.substr(3), false);
 
             break;
 
@@ -1395,7 +1485,18 @@ var Processed;
             var currentRow = configTable.rows.length;
             var row = configTable.insertRow(-1);
             row.id = "configRow" + ConfigDetails[0] + "_" +currentRow;
-            populateRow(currentRow, 4, message.payloadString.substr(3), false)
+            populateRow(currentRow, 4, message.payloadString.substr(3), false);
+            break;
+
+          case "03":
+            lastModuleType = ConfigDetails[0];
+            var cell;
+            var configTableName = "ConfigTable" + ConfigDetails[0];
+            var configTable = document.getElementById(configTableName);
+            var currentRow = configTable.rows.length;
+            var row = configTable.insertRow(-1);
+            row.id = "configRow" + ConfigDetails[0] + "_" +currentRow;
+            populateRow(currentRow, 3, message.payloadString.substr(3), false);
             break;
 
           case "09":
@@ -1408,7 +1509,7 @@ var Processed;
             var currentRow = configTable.rows.length;
             var row = configTable.insertRow(-1);
             row.id = "configRow" + ConfigDetails[0] + "_" +currentRow;
-            populateRow(currentRow, parseInt(ConfigDetails[0]), message.payloadString.substr(3), false)
+            populateRow(currentRow, parseInt(ConfigDetails[0]), message.payloadString.substr(3), false);
             break;
 
           case "14": //DCC
@@ -1468,7 +1569,7 @@ var Processed;
 
         usageTableDiv.appendChild(configTable);
 
-        usageLineHeadings(configTable, lastModuleType);
+        usageLineHeadings(moduleType, configTable, lastModuleType);
       }
 
       switch(ConfigDetails[2])
@@ -1502,6 +1603,17 @@ var Processed;
           row.id = "configRow" + ConfigDetails[1] + "_" +currentRow;
 
           populateRow(currentRow, moduleType, message.payloadString.substr(3), true, configTable);
+
+          break;
+
+        case "03":
+          var cell;
+          var currentRow = configTable.rows.length;
+          var row = configTable.insertRow(-1);
+          row.id = "configRow" + ConfigDetails[1] + "_" +currentRow;
+
+          populateRow(currentRow, moduleType, message.payloadString.substr(3), true, configTable);
+          row.cells[0].innerHTML = ConfigDetails[3];
 
           break;
 
@@ -1644,7 +1756,19 @@ var Processed;
     		  	  tempString += ConfigDetails[1];
     			    tempString += '\');"><span style="font-family:icons;">&#xef1f;</span> Upgrade</button></td>';
             }
+            else
+      			{
+        			tempString += '<td class="deviceTD"></td>';
+            }
           }
+
+          if (ConfigDetails[4] != "localhost")
+          {
+            tempString += '<td class="deviceTD"><button onclick="identifyModule(\'';
+            tempString += moduleName;
+            tempString += '\');"><span style="font-family:icons;">&#xefca;</span> Identify</button></td>';          
+          }
+          
           tempString += "</tr>";
           elementExists.innerHTML = tempString;
   		  }
@@ -1694,6 +1818,14 @@ var Processed;
     			    tempString += '\');"><span style="font-family:icons;">&#xef1f;</span> Upgrade</button></td>';
     			  }
     			}
+
+          if (ConfigDetails[4] != "localhost")
+          {
+            tempString += '<td class="deviceTD"><button onclick="identifyModule(\'';
+            tempString += moduleName;
+            tempString += '\');"><span style="font-family:icons;">&#xef1f;</span> Identify</button></td>';          
+          }
+          
     			tempString += "</tr>";
     			x.innerHTML += tempString;
   		  }
@@ -1928,7 +2060,7 @@ function openEventPopup(eventType, x)
   var labelDetails = document.getElementById("LabelSelect");
   var labelsExist = api_call_select_list(labelDetails);
 
-  if ((eventTypeID.charCodeAt(0) & 128) != 0)
+  if (eventTypeID >= 'a' && eventTypeID <= 'x')
   {
     var eventFirstChar = eventTypeID;
     eventTypeID = 'R';
@@ -2060,13 +2192,15 @@ function openEventPopup(eventType, x)
           blankButton.checked = false;
           document.getElementById("_TIMERANGE").checked = true;
 
-          var tempCharCode = eventFirstChar.charCodeAt(0);
-          var RangeLow =  30 + (((eventFirstChar.charCodeAt(0) - 128) >> 4) * 10) + ((eventFirstChar.charCodeAt(0) - 128) & 15)
+          //var tempCharCode = eventFirstChar.charCodeAt(0) - 'a'.charCodeAt(0);
+          var RangeLow = (eventFirstChar.charCodeAt(0) - 'a'.charCodeAt(0)) + 30;
+          // var RangeLow =  30 + (((eventFirstChar.charCodeAt(0) - 128) >> 4) * 10) + ((eventFirstChar.charCodeAt(0) - 128) & 15)
           var option = $('#EventRange1').children('option[value="'+ RangeLow +'"]');
           option[0].selected = true;
 
-          var tempCharCode = eventBankID.charCodeAt(0);
-          var RangeHigh = 30 + (((eventBankID.charCodeAt(0) - 128) >> 4) * 10) + ((eventBankID.charCodeAt(0) - 128) & 15)
+          //var tempCharCode = eventBankID.charCodeAt(0);
+          //var RangeHigh = 30 + (((eventBankID.charCodeAt(0) - 128) >> 4) * 10) + ((eventBankID.charCodeAt(0) - 128) & 15)
+          var RangeHigh = (eventBankID.charCodeAt(0) - 'a'.charCodeAt(0)) + 30;
           var option = $('#EventRange2').children('option[value="'+ RangeHigh +'"]');
           option[0].selected = true;
 
@@ -2558,6 +2692,7 @@ function saveEventPopup()
       newValue += newValue2;
       newValue += ":";
 
+/*
       var hiddenValueA = 128;
       hiddenValueA |= (parseInt(newValue.substr(0,1)) << 4);
       hiddenValueA |= parseInt(newValue.substr(1,1));
@@ -2574,7 +2709,24 @@ function saveEventPopup()
       e = document.getElementById("EventRangeMinuteUnits");
       hiddenValue += e.options[e.selectedIndex].value;
       newValue += e.options[e.selectedIndex].value;
+*/
+      var hiddenValueA = "a".charCodeAt(0);
+      hiddenValueA += parseInt(newValue.substr(0,2));
+//      hiddenValueA |= parseInt(newValue.substr(1,1));
 
+      var hiddenValueB = "a".charCodeAt(0);
+//      hiddenValueB |= (parseInt(newValue.substr(4,1)) << 4);
+      hiddenValueB += parseInt(newValue.substr(4,2));
+      var hiddenValue = String.fromCharCode(hiddenValueA, hiddenValueB);
+
+      e = document.getElementById("EventRangeMinuteTens");
+      hiddenValue += e.options[e.selectedIndex].value;
+      newValue += e.options[e.selectedIndex].value;
+
+      e = document.getElementById("EventRangeMinuteUnits");
+      hiddenValue += e.options[e.selectedIndex].value;
+      newValue += e.options[e.selectedIndex].value;
+      
       editEventObject.value = hiddenValue;
       editEventObject.innerHTML = newValue;
       break;
@@ -2728,6 +2880,59 @@ var retVal = false;
   }
 
   return retVal;
+}
+
+function updateInputRow(rowNumber)
+{
+  var retval = 1;
+
+  var selectedVal = document.getElementById("InputType"+rowNumber).value;
+  if (selectedVal == 3)
+  {
+    // display the timeout field
+    document.getElementById("default_button_3_"+rowNumber+"-2").style.visibility  = "visible";
+  }
+  else
+  {
+    // hide it
+    document.getElementById("default_button_3_"+rowNumber+"-2").style.visibility  = "hidden";
+  }
+
+  if (selectedVal == 2)
+  {
+    // grey out the next row and disable it
+    var nextRow = document.getElementById("configRow03_"+(rowNumber+1));
+    if (nextRow !== null)
+    {
+      // disable all the child input eements
+      var numChildElements = nextRow.children.length;
+      for (var i=0; i< numChildElements; i++)
+        if (nextRow.children[i].children.length > 0)
+          nextRow.children[i].children[0].disabled = true;
+      // make the event and the pin type the same on the next row...
+      document.getElementById("editInputPopup_button"+(rowNumber+1)).value = document.getElementById("editInputPopup_button"+rowNumber).value;
+      document.getElementById("InputType"+(rowNumber+1)).value = document.getElementById("InputType"+rowNumber).value;
+      retval = 2;
+    }
+  }
+  else
+  {
+    // make it editble
+    var nextRow = document.getElementById("configRow03_"+(rowNumber+1));
+    if (nextRow !== null)
+    {
+      // disable all the child input eements
+      var numChildElements = nextRow.children.length;
+      for (var i=0; i< numChildElements; i++)
+        if (nextRow.children[i].children.length > 0)
+          nextRow.children[i].children[0].disabled = false;
+      // if the values are from a previous 'pair' setting, then change them to something else!
+      if (document.getElementById("InputType"+(rowNumber+1)).value == 2 && (rowNumber % 2) == 1)
+        document.getElementById("InputType"+(rowNumber+1)).value = 0;
+    }
+  }
+
+  return retval;
 }
 
 function swapColourInputFields(row)
@@ -3130,6 +3335,19 @@ function openServoPopup(x, board, row, heading)
 	    option[0].selected = true;
 	    document.getElementById("popupStallPulse").value = parseInt(thisValue.substring(1));
       break;
+
+    case 'R':
+      var x = document.getElementById("_RELAY");
+      x.checked = true;
+	    var option = $('#popupRelayAction').children('option[value="'+thisValue.substring(0,1)+'"]');
+	    option[0].selected = true;
+	    if (thisValue.length > 1)
+  	    document.getElementById("popupRelayPulse").value = parseInt(thisValue.substring(1));
+  	  else
+  	    document.getElementById("popupRelayPulse").value = 50;
+  	  
+	    showRelayPulseTime();
+      break;
   }
   changeServoPopupType(x);
 
@@ -3142,12 +3360,14 @@ function changeServoPopupType(x)
   var Solenoid = document.getElementById('popupSolenoid');
   var Kato = document.getElementById('popupKato');
   var Stall = document.getElementById('popupStallMotor');
+  var Relay = document.getElementById('popupRelay');
 
   Servo.style.display = 'none';
   Signal.style.display = 'none';
   Solenoid.style.display = 'none';
   Kato.style.display = 'none';
   Stall.style.display = 'none';
+  Relay.style.display = 'none';
 
   switch (x.value)
   {
@@ -3170,6 +3390,11 @@ function changeServoPopupType(x)
     case 'T':
       Stall.style.display = 'block';
       break;
+      
+    case 'R':
+      Relay.style.display = 'block';
+      showRelayPulseTime();
+      break;
   }
 }
 
@@ -3183,6 +3408,21 @@ function sendInteractiveServo(x)
   if (document.getElementById("popupServoInteractive").checked)
   {
     sendInteractiveServoMessage(x.value, editServoEventRow);
+  }
+}
+
+function showRelayPulseTime()
+{
+  var currentOption = document.getElementById('popupRelayAction').value;
+  if (currentOption != "2")
+  {
+    document.getElementById("relayPulseTimeTitle").style.visibility = "hidden";
+    document.getElementById("relayPulseTime").style.visibility = "hidden";
+  }
+  else
+  {
+    document.getElementById("relayPulseTimeTitle").style.visibility = "visible";
+    document.getElementById("relayPulseTime").style.visibility = "visible";
   }
 }
 
@@ -3267,7 +3507,7 @@ var returnVal = "<span style='font-family:icons;'>";
     case 'T':
       returnVal = "<span style='font-family:icons;'>&#xe892;</span> ";
       returnVal = returnVal + "<span style='font-family:typicons;'>";
-      if (newValue == 'L')
+      if (newValue.substring(0,1) == 'L')
       {
         returnVal = returnVal + "&#xe00D;"
       }
@@ -3279,6 +3519,24 @@ var returnVal = "<span style='font-family:icons;'>";
       returnVal = returnVal + newValue.substring(1);
       returnVal = returnVal + ")";
       returnVal = returnVal + "</span>";
+      break;
+ 
+    case 'R':
+      returnVal = "<span style='font-family:icons;'>&#xeed9;</span> ";
+      if (newValue.substring(0,1) == '0')
+      {
+        returnVal = returnVal + " OFF "
+      }
+      if (newValue.substring(0,1) == '1')
+      {
+        returnVal = returnVal + " ON "
+      }
+      if (newValue.substring(0,1) == '2')
+      {
+        returnVal = returnVal + " MOM "
+        returnVal = returnVal + "(" + newValue.substring(1);
+        returnVal = returnVal + ")";
+      }
       break;
   }
 
@@ -3338,6 +3596,12 @@ var newText = "";
       var e = document.getElementById("popupStallDirection");
       newValue = e.options[e.selectedIndex].value;
       newValue += document.getElementById("popupStallPulse").value;
+      break;
+
+    case 'R':
+      var e = document.getElementById("popupRelayAction");
+      newValue = e.options[e.selectedIndex].value;
+      newValue += document.getElementById("popupRelayPulse").value;
       break;
   }
 
@@ -4064,7 +4328,8 @@ function displaySubpage(selectedObject)
       document.getElementById(pageType).style.display = "block";
   }
 }
-
+<?php
+/*
 function programInputModule()
 {
 	var selectedObject=document.getElementById("Sensors");
@@ -4072,7 +4337,8 @@ function programInputModule()
   if (confirm("Select OK to send the configuration to "+moduleName+"?"))
   {
 	  var switchConfigurations = ""
-	  for (var i = 0; i < 16; i++)
+	  var numberOfRows = document.getEleentById("").
+	  for (var i = 0; i < numberOfRows; i++)
 	  {
 	    switchConfigurations += document.getElementById("editInputPopup_button"+i).value.substr(0,1);
 	    switchConfigurations += ",";
@@ -4100,7 +4366,7 @@ function programInputModule()
         i++;
       }
       else
-        if (i < 15)
+        if (i < (numberOfRows - 1))
           switchConfigurations += "\n";
     }
 
@@ -4108,7 +4374,8 @@ function programInputModule()
     PublishDevices(moduleName, payload);
 	}
 }
-
+*/
+?>
 function programDCCModule()
 {
 	var selectedObject=document.getElementById("Sensors");
@@ -4405,8 +4672,8 @@ function retrieveConfigFile(moduleType)
   var device = y.selectedOptions[0].text;
   if (confirm("Selecting OK will overwrite and details below"))
   {
-    if (moduleType == '03')
-      document.getElementById("inputButtons").style.display = "none";
+//    if (moduleType == '03')
+//      document.getElementById("inputButtons").style.display = "none";
 
     if (moduleType == '08')
       document.getElementById("matrixConfigPage").style.display = "none";
@@ -4480,6 +4747,14 @@ function processFileContents(moduleType, t)
       }
     }
     manipulateRows(1, moduleType, "Renumber");
+
+    if (moduleType == 3)
+    {
+      // and procees each row/fields so they show the right things :)
+      var numRows = document.getElementById("ConfigTable03").rows.length;
+      for (i=1; i<numRows;)
+        i += updateInputRow(i);
+    }
   }
 }
 
@@ -4508,20 +4783,20 @@ function importConfigFile(moduleType)
 
   var y = document.getElementById("Sensors");
   var device = y.selectedOptions[0].text;
-  if (confirm("Selecting OK will overwrite and details below"))
-  {
-    var e = document.getElementById('fileImportInput');
+  var e = document.getElementById('fileImportInput');
 
-      var file = e.files[0];
-      if (!file) {
-        return;
-      }
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var contents = e.target.result;
-        processFileContents(moduleType, contents);
-      };
-      reader.readAsText(file);
+  var file = e.files[0];
+  if (file) 
+  {
+    if (confirm("Selecting OK will overwrite and details below"))
+    {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var contents = e.target.result;
+          processFileContents(moduleType, contents);
+        };
+        reader.readAsText(file);
+    }
   }
 }
 
@@ -5248,6 +5523,13 @@ function changeSoundPopupBlank(x)
     changeSoundPopupTimeType(document.getElementById("popupSoundTimeType"));
     changeSoundRepeatPopupType(document.getElementById("popupSoundRepeatType"));
   }
+}
+
+function identifyModule(moduleName)
+{
+  var tempString = "/Modules/" + moduleName;
+  var targetString = SOM + "ID" + EOM;
+  client.publish(tempString, targetString, 2);
 }
 
 function requestConfiguration()
@@ -6759,9 +7041,10 @@ $(document).ready(function(){
 </div>
 
 <div id="editServoPopup" class="modal" style="color:black; z-index:50;">
-  <div class="servo-modal-content">
+  <div class="servo-modal-content" style="width:650px;">
     <h3 id="popupServoTitle"></h3>
     <input type="radio" id="_SERVO" style="margin-left: 8px" name="servoType" value="S" onchange="changeServoPopupType(this)">Servo <span style="font-family:icons;">&#xeff3;</span>
+    <input type="radio" id="_RELAY" style="margin-left: 8px" name="servoType" value="R" onchange="changeServoPopupType(this)">Relay <span style="font-family:icons;">&#xeed9;</span>
     <input type="radio" id="_SIGNAL_HEAD" name="servoType" value="H" onchange="changeServoPopupType(this)">Signal <span style="font-family:icons;">&#xf016;</span>
     <input type="radio" id="_SOLENOID" name="servoType" value="P" onchange="changeServoPopupType(this)">Solenoid <span style="font-family:icons;">&#xee84;</span>
     <input type="radio" id="_KATO" name="servoType" value="K" onchange="changeServoPopupType(this)">Kato <span style="font-family:icons;">&#xefae;</span>
@@ -6857,6 +7140,24 @@ $(document).ready(function(){
           </td>
           <td>
         	  <input id="popupStallPulse" style="width:50px" onclick="openIntegerPopup(this,1,100,'Stall Motor Energise Time')">
+        	</td>
+        </tr>
+        <tr id = 'popupRelay'>
+          <td style="width:70px;">
+            Action
+          </td>
+          <td>
+            <select id="popupRelayAction" onchange="showRelayPulseTime()">
+	          <option value='0'>OFF</option>
+  	        <option value='1'>ON</option>
+	          <option value='2'>MOMENTARY</option>
+            </select>
+          </td>
+          <td id="relayPulseTimeTitle">
+            Pulse Time
+          </td>
+          <td id="relayPulseTime">
+        	  <input id="popupRelayPulse" style="width:50px" onclick="openIntegerPopup(this,1,99,'Relay Pulse Time')">
         	</td>
         </tr>
       </table>
@@ -7014,19 +7315,23 @@ $(document).ready(function(){
 <div id="editImportFilePopup" class="modal" style="color:black">
   <div class="file-modal-content">
     <h3 id="popupFileTitle"></h3>
-    <form>
-      <table>
-        <tr>
-          <td>
-            <input type="file" id="fileImportInput" style="color:black;"/>
-          </td>
-        </tr>
-      </table>
-    </form>
-    <br />
-    <button class="editFilePopup_save"   onclick="saveImportFilePopup()">Import</button>
-    <br />
-    <button class="editFilePopup_cancel" onclick="closeImportFilePopup()">Close</button>
+    <table>
+      <tr>
+        <td colspan=2>
+          <input type="file" id="fileImportInput" style="color:black;"/>
+        </td>
+      </tr>
+      <tr style="height:25px">
+      </tr>
+      <tr>
+        <td>
+          <button class="editFilePopup_save"   onclick="saveImportFilePopup()">Import</button>
+        </td>
+        <td>
+          <button class="editFilePopup_cancel" onclick="closeImportFilePopup()">Cancel</button>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>
 
@@ -7742,53 +8047,17 @@ $(document).ready(function(){
       <div id="03" class="subpage" style="display:none;">
         <div class="menu" id="menu" style="width:100%; background:#555555">
         <a class="menuitem" onclick="retrieveConfigFile('03');" class="active"><span style="font-family:icons;font-size: 17;">&#xef08;</span> Download</a>
-        <a class="menuitem" onclick="programInputModule();" ><span style="font-family:icons;font-size: 17;">&#xf01c;</span> Upload</a>
+        <a class="menuitem" onclick="uploadConfigFile('03');" ><span style="font-family:icons;font-size: 17;">&#xf01c;</span> Upload</a>
+        <a class="menuitem" onclick="openImportFilePopup(this, '03', '', 'Import Configuration File');" ><span style="font-family:icons;font-size: 17;">&#xef7b;</span> Import</a>
+        <a class="menuitem" onclick="exportConfigFile('03')" ><span style="font-family:icons;font-size: 17;">&#xef05;</span> Save</a>
         </div>
         <br />
-        <form style="display: none;" id="inputButtons">
-          <table style="border-spacing:4px;">
-    <?php
-      for ($i=0; $i<16; $i++)
-      {
-    ?>
-      <tr>
-          <td class="switchTableCell" style="width:20px; padding-right: 7px; border-style:none"><?php echo $i ?></td>
-          <td class="switchTableCell" id='manualInputTypeRow<?php echo $i ?>' style="width:40px; padding-right:7px">
-            <input id="editInputPopup_button<?php echo $i ?>" style="width:40px; border-style:none;" onclick="openLabelEventPopup('Event to trigger on input', this);" value="A00">
-          </td>
-          <td class="switchTableCell">
-            <input type="radio" name="manualinputtype<?php echo $i ?>" value="0" id="manualinputtype<?php echo $i ?>N" onclick="inputSwitchType(this,<?php echo $i ?>)" checked><label for="manualinputtype<?php echo $i ?>N"> Normal</label>
-        </td>
-          <td class="switchTableCell">
-            <input type="radio" name="manualinputtype<?php echo $i ?>" value="1" id="manualinputtype<?php echo $i ?>T" onclick="inputSwitchType(this,<?php echo $i ?>)"><label for="manualinputtype<?php echo $i ?>T"> Toggle</label>
-        </td>
-      <?php if ($i%2 == 0)
-        {
-      ?>
-          <td class="switchTableCell">
-          <input type="radio" name="manualinputtype<?php echo $i ?>" value="2" id="manualinputtype<?php echo $i ?>P" onclick="inputSwitchType(this,<?php echo $i ?>)"><label for="manualinputtype<?php echo $i ?>P"> Pair</label>
-      <?php
-        }
-        else
-        {
-      ?>
-          <td style="background:transparent">
-      <?php
-        }
-        ?>
-        </td>
-        <td class="switchTableCell">
-        <input type="radio" name="manualinputtype<?php echo $i ?>" value="3" id="manualinputtype<?php echo $i ?>X" onclick="inputSwitchType(this,<?php echo $i ?>)"><label for="manualinputtype<?php echo $i ?>X"> Timed</label>
-        </td>
-        <td class="switchTableCell" id=timeoutlabelCell<?php echo $i ?> style="padding-left:20px; background: transparent">
-        <span style="visibility:hidden" id=timeoutlabel<?php echo $i ?>>Reset after <input onclick="openIntegerPopup(this, 0, 60, 'Switch reset after...');"  style="width: 32px;" name="manualinputtype<?php echo $i ?>" value="0" id="manualinputtype<?php echo $i ?>XT" > seconds</span>
-        </td>
-      </tr>
-    <?php }
-    ?>
+        <div id="ConfigArea03">
+          <table id="ConfigTable03" style="text-align: center">
           </table>
-        </form>
+        </div>
       </div>
+      
       <div id="0" class="subpage" style="display:none;">
         <div class="menu" id="menu" style="width:100%; background:#555555">
         <a class="menuitem" onclick="retrieveConfigFile('01');" class="active"><span style="font-family:icons;font-size: 17;">&#xef08;</span> Download</a>
@@ -7951,8 +8220,10 @@ $(document).ready(function(){
 	<div class="footer">
 	  <hr>
 	  <img src="images/modulus_logo.png" style="width: 48px; float: left; margin-right: 10px;">
-		<h2 style="float: left;font-family:sans-serif;font-size: 18px;">MODULUS V1.10 &nbsp;&nbsp;&nbsp;&nbsp;&copy; 2022,2023</h2>
-		<img class="frontpage_logo" src="images/sms_small.png">
+		<h2 style="float: left;font-family:sans-serif;font-size: 18px;">MODULUS V1.10 &nbsp;&nbsp;&nbsp;&nbsp;&copy; 2022,2023,2024</h2>
+		<div style="float:right; width:290px; display:flex">
+		  <h2 style="font-family:sans-serif;font-size: 18px;">Proudly supported by </h2><img class="frontpage_logo" style="" src="images/sms_small.png">
+		</div>
 	</div>
 </div>
 </body>
