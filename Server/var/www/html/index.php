@@ -54,6 +54,7 @@ var editServoRow;
 var editServoBoard;
 var editLightingGroupObject;
 var editLabelEventObject;
+var editLabelEventRow;
 var editSoundEventObject;
 var fileModuleType;
 var rowsReceived = 0;
@@ -530,21 +531,11 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
       switch(fieldRange[boardType][i][2][0])
       {
         case '#':
-//          var newInnerHTML = '<input id="editInputPopup_button'+rowNumber+'" style="width:40px;" onclick="openLabelEventPopup(\'Event to trigger on input\', this);" value='+ConfigDetails[fieldIndex]+'>';
-  //        var newInnerHTML = '<button '+disabledStr+' class="config_button tooltip" id="editEventPopup_button'+uniqueID+rowNumber+'" onclick="openEventPopup(\''+fieldRange[boardType][i][2][0]+'\', this);" value="' + ConfigDetails[i] + '">' + ConfigString;
-  //        if (toolTipString != ConfigDetails[i].substr(1,3))
-  //          newInnerHTML += '<span class="tooltiptext">' + toolTipString + '</span>';
-  //        newInnerHTML += '</button>';
           newCell.innerHTML = rowNumber;
-//          fieldIndex++;
           break;
 
         case 'W':
-          var newInnerHTML = '<input '+disabledStr+' id="editInputPopup_button'+uniqueID+rowNumber+'" style="width:40px;" onclick="openLabelEventPopup(\'Event to trigger on input\', this);" value='+ConfigDetails[fieldIndex]+'>';
-  //        var newInnerHTML = '<button '+disabledStr+' class="config_button tooltip" id="editEventPopup_button'+uniqueID+rowNumber+'" onclick="openEventPopup(\''+fieldRange[boardType][i][2][0]+'\', this);" value="' + ConfigDetails[i] + '">' + ConfigString;
-  //        if (toolTipString != ConfigDetails[i].substr(1,3))
-  //          newInnerHTML += '<span class="tooltiptext">' + toolTipString + '</span>';
-  //        newInnerHTML += '</button>';
+          var newInnerHTML = '<input '+disabledStr+' id="editInputPopup_button'+uniqueID+rowNumber+'" style="width:40px;" onclick="openLabelEventPopup(\'Event to trigger on input\', this,'+rowNumber+');" value='+ConfigDetails[fieldIndex]+'>';
           newCell.innerHTML += newInnerHTML;
           fieldIndex++;
           break;
@@ -5916,10 +5907,11 @@ function closeLocalSoundFilesPopup()
   document.getElementById("editLocalSoundFileListPopup").style.display = "none";
 }
 
-function openLabelEventPopup(Title, x)
+function openLabelEventPopup(Title, x, rowNumber)
 {
   document.getElementById("editLabelEventPopup").style.display = "block";
   editLabelEventObject = x;
+  editLabelEventRow = rowNumber;
 
   document.getElementById("labelEventPopupTitle").innerHTML = Title;
 
@@ -5938,6 +5930,7 @@ function openLabelEventPopup(Title, x)
   var option = $('#LabelEventUnits').children('option[value="'+ eventUnitsID +'"]');
   option[0].selected = true;
 
+  return;
 }
 
 function closeLabelEventPopup()
@@ -5956,6 +5949,10 @@ function saveLabelEventPopup()
 
   editLabelEventObject.value = newValue;
   editLabelEventObject.innerHTML = newValue;
+
+  if (editLabelEventRow >= 0)
+    updateInputRow(editLabelEventRow);
+
   closeLabelEventPopup();
 }
 
@@ -5993,7 +5990,7 @@ function populateLabelRow(rowNumber, configString)
   var ConfigString = "";
   ConfigString = ConfigDetails[1];
 
-  newCell.innerHTML = '<button class="config_button" id="editLabelPopup_button'+rowNumber+'" onclick="openLabelEventPopup(\'Event to label\', this);" value="' + ConfigString + '">' + ConfigString + '</button>';
+  newCell.innerHTML = '<button class="config_button" id="editLabelPopup_button'+rowNumber+'" onclick="openLabelEventPopup(\'Event to label\', this, -1);" value="' + ConfigString + '">' + ConfigString + '</button>';
 
   newCell = row.insertCell();
   ConfigString = ConfigDetails[2];
@@ -7577,7 +7574,7 @@ $(document).ready(function(){
           <br />
           <br />
           <form onsubmit="return confirmShutdownTrigger(this);" action="shutdown_trigger.php" method="post">
-            Shutdown on this event : <input name="ShutdownEvent" id="ShutdownEvent" style="width:40px;" onclick="openLabelEventPopup('Event to trigger shutdown', this);" value="Z99">
+            Shutdown on this event : <input name="ShutdownEvent" id="ShutdownEvent" style="width:40px;" onclick="openLabelEventPopup('Event to trigger shutdown', this, -1);" value="Z99">
             <input type="submit" value="Update shutdown trigger event"></td></tr>
           </form>
         </div>

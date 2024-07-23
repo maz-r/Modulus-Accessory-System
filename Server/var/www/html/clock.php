@@ -85,7 +85,7 @@
 <script>
 
 var clientId = "clientID"+~~(Math.random()*1000);
-client = new Paho.MQTT.Client("<?php print $_SERVER['SERVER_ADDR']; ?>", Number(81), clientId);
+client = new Paho.MQTT.Client("<?php print $_SERVER['HTTP_HOST']; ?>", Number(9001), clientId);
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 client.connect({onSuccess:onConnect});
