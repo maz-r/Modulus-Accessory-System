@@ -19,11 +19,14 @@ PHP8<br />
 Python3<br />
 mosquitto<br />
 mosquitto-clients<br />
+SQLite<br />
 pygame (under python)<br />
 paho.mqtt.client (under python)<br />
 pyudev (under python)<br />
 <p>
-When setting up your Raspberry Pi to host the Modulus base station, create the initial user as 'sms'. Failing to do so will mean a whole heap edits to these files and their locations. The files and folders need to be created in the proscribed layout. Permissions are fairly 'loose' as the index page executes system calls to update various configuration items, such as the WiFi credentials
+The versions of these packages that are known to work in the context of the Modulus base station are shown within the brackets.
+</p>
+When setting up your Raspberry Pi to host the Modulus base station, create the initial user as 'sms'. Failing to do so will mean a whole heap edits to these files and their locations. The packages above should be installed before copying the Modulus files from this repository onto your Pi, as they overwrite some of the default configuration files created when the packages are installed. The files and folders need to be created in the proscribed layout. Permissions are fairly 'loose' as the index page executes system calls to update various configuration items, such as the WiFi credentials
 </p>
 <p>
 Step-by-step instructions on how to install and configure all of the relevant packages are available via support.
