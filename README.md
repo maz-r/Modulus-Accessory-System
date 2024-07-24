@@ -14,7 +14,7 @@ Each module is an ESP8266 microprocessor with associated ancillary electronics. 
 <p>
 To create a Modulus base station, alongside the files in the /Server directory tree, you will need to install:
 <br /><br />
-Apache2 (2.4.59 (Raspbian)<br />
+Apache2 (2.4.59 (Raspbian))<br />
 PHP8 (8.2.7)<br />
 Python3 (3.11.2)<br />
 mosquitto (2.0.11)<br />
