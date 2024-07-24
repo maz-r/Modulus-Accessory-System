@@ -14,15 +14,14 @@ Each module is an ESP8266 microprocessor with associated ancillary electronics. 
 <p>
 To create a Modulus base station, alongside the files in the /Server directory tree, you will need to install:
 <br /><br />
-Apache2<br />
-PHP8<br />
-Python3<br />
-mosquitto<br />
-mosquitto-clients<br />
-SQLite<br />
-pygame (under python)<br />
-paho.mqtt.client (under python)<br />
-pyudev (under python)<br />
+Apache2 (2.4.59 (Raspbian)<br />
+PHP8 (8.2.7)<br />
+Python3 (3.11.2)<br />
+mosquitto (2.0.11)<br />
+mosquitto-clients (2.0.11)<br />
+SQLite (3.40.1)<br />
+pygame (2.6.0) (under python)<br />
+paho-mqtt (2.1.0) (under python)<br />
 <p>
 The versions of these packages that are known to work in the context of the Modulus base station are shown within the brackets.
 </p>
