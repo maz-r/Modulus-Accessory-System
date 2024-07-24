@@ -1,7 +1,7 @@
 <h1>Modulus</h1>
 <h2>A system for controlling accessories on a model railway/railroad</h2>
 <p>
-Modulus consists of 2 parts; a central base station wich controls to flow of events between the modules, and ESP8266 modules which act as the inputs (switches/sensors etc) and outputs (servos/relays/LED lighting/sounds/clocks etc).
+Modulus consists of 2 parts; a central base station which controls to flow of events between the modules, and ESP8266 modules which act as the inputs (switches/sensors etc) and outputs (servos/relays/LED lighting/sounds/clocks etc).
 </p>
 <p>
 The files for the Modulus system central module (or base station) are under the /Server directory and the embedded software for each module is under the /arduino directory.
@@ -23,10 +23,10 @@ pygame (under python)<br />
 paho.mqtt.client (under python)<br />
 pyudev (under python)<br />
 <p>
-When setting up your Raspberry Pi to host the Modulus base station, create the initial user as 'sms'. Failing to do so will mean a whole heap edits to these files and their locations. The files and folders need to be created in the proscribed layout. Permissions are fairly 'loose' as the index page executes system calls to update various feature such as the WiFi credentials
+When setting up your Raspberry Pi to host the Modulus base station, create the initial user as 'sms'. Failing to do so will mean a whole heap edits to these files and their locations. The files and folders need to be created in the proscribed layout. Permissions are fairly 'loose' as the index page executes system calls to update various configuration items, such as the WiFi credentials
 </p>
 <p>
-Step-by-step instructions of how to install and configure all of the relevant packages are available via support.
+Step-by-step instructions on how to install and configure all of the relevant packages are available via support.
 </p>
 <p>
 You should note that this software is released under the PolyForm Noncommercial 1.0.0 license. Full wording of the licence is <a href='https://github.com/polyformproject/polyform-licenses/blob/1.0.0/PolyForm-Noncommercial-1.0.0.md'>here</a>. This is NOT an open source licence as defined by the OSS Foundation.
