@@ -9,7 +9,7 @@ timestamp=1719847459
 band=bg
 channel=3
 mode=ap
-ssid=MODULUS_BASE_PI
+ssid=MODULUS_BASE_STATION
 
 [wifi-security]
 group=ccmp;
