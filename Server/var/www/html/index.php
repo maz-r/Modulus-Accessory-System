@@ -1,3 +1,15 @@
+<!--
+# Required Notice: Copyright (C) 2024 Martin Randall - All Rights Reserved
+#
+# You may use, distribute and modify this code under the
+# terms of the PolyForm Noncommercial 1.0.0 license.
+#
+# You should have received a copy of the PolyForm Noncommercial 1.0.0 license with
+# this file. 
+# If not, please visit: <https://polyformproject.org/licenses/noncommercial/1.0.0>
+#
+#
+-->
 <script src="js/paho-mqtt.js" type="text/javascript"></script>
 <script src="js/jquery-min.js"></script>
 <link   href="css/sms.css" rel="stylesheet" />

@@ -1,3 +1,13 @@
+# Required Notice: Copyright (C) 2024 Martin Randall - All Rights Reserved
+#
+# You may use, distribute and modify this code under the
+# terms of the PolyForm Noncommercial 1.0.0 license.
+#
+# You should have received a copy of the PolyForm Noncommercial 1.0.0 license with
+# this file. 
+# If not, please visit: <https://polyformproject.org/licenses/noncommercial/1.0.0>
+#
+#
 import paho.mqtt.client as mqtt #import the client1
 import pygame
 from pygame import AUDIO_ALLOW_ANY_CHANGE
@@ -25,7 +35,6 @@ boardType = "16"
 
 SongQueueHead = [0 for i in range(MAX_CHANNELS)]
 SongQueueTail = [0 for i in range(MAX_CHANNELS)]
-#SongQueue = [[""] * MAX_QUEUE_SIZE] * MAX_CHANNELS
 SongQueue = [["" for i in range(MAX_QUEUE_SIZE)] for j in range(MAX_CHANNELS)]
 currentChannel = 0
 Variables = [-1 for i in range(26)]
@@ -97,7 +106,6 @@ def readConfigurationFile():
     print("Initiating content list")
   my_file = open("/SoundSystem/Configuration/config.txt", "r")
   content_list = my_file.read().splitlines()
-#  print(content_list)
   my_file.close()
 
 def readVolumeFile():
@@ -106,7 +114,6 @@ def readVolumeFile():
   volume_list = my_file.read().splitlines()
   my_file.close()
 
-#  print(volume_list)
   for i in range(6):
     Volume[i] = volume_list[i]
   if card_present:
@@ -115,8 +122,6 @@ def readVolumeFile():
 
 def OverwriteConfigFile(configString):
   configString = configString.replace(">", "\n")
-#  print("Writing :")
-#  print(configString)
   my_file = open("/SoundSystem/Configuration/config.txt", "w")
   if len(configString) > 1:
     my_file.write(configString)
@@ -125,8 +130,6 @@ def OverwriteConfigFile(configString):
 
 def AddToConfigFile(configString):
   configString = configString.replace(">", "\n")
-#  print("Adding :")
-#  print(configString)
   my_file = open("/SoundSystem/Configuration/config.txt", "a")
   my_file.write(configString)
   my_file.close()
@@ -141,9 +144,6 @@ def calcQueueLength(channel):
   return length
 
 def shortestQueue():
-#  newChannel = pygame.mixer.find_channel()
-#  print ("newChannel = ", type(newChannel))
-#  if newChannel == None:
   lowQueue = 999
   for i in range(6):
     thisLength =  calcQueueLength(i)
@@ -153,10 +153,6 @@ def shortestQueue():
   return newChannel
 
 def processLine(Args):
-
-#  print ("Processing:")
-#  print (Args)
-
   QueueMode = Args[1][0]
 
   ArgCount = len(Args)
@@ -165,10 +161,8 @@ def processLine(Args):
     if Args[2][0] == '$':
       if ord(Args[2][1]) - ord('A') >=0 and ord(Args[2][1]) - ord('A') <= 25:
         Variables[ord(Args[2][1]) - ord('A')] = Args[3]
-#        print ("Setting ",ord(Args[2][1]) - ord('A'), " to ",Args[3])
   else:
     boardNumber = int(Args[2])
-#    print(boardNumber)
 
     if boardNumber == 99:
       boardNumber = shortestQueue()
@@ -176,9 +170,6 @@ def processLine(Args):
     if QueueMode == 'N' or QueueMode == 'I':
       for q in range(MAX_QUEUE_SIZE):
         SongQueue[boardNumber][q] = ""
-#        print ("Setting Queue ", boardNumber,":",q," to null")
-#        for r in range(MAX_QUEUE_SIZE)
-#          print ("    Queue 4:",r," = ",SongQueue[4][r])
         
       SongQueueHead[boardNumber] = 0
       SongQueueTail[boardNumber] = 0
@@ -323,7 +314,6 @@ def MatchTimeTrigger(Match, CurrentHour, TimeRange, Trigger, NumRandom):
 def SoundProcessFile(trigger, TimeMessage):
   global content_list
 
-#  print ("processing ",trigger)
   if TimeMessage:
     CurrentHour = ((ord(trigger[0]) - ord('0')) * 10) + (ord(trigger[1]) - ord('0'))
 
@@ -357,8 +347,6 @@ def ProcessSearchLine(trigger):
       client.publish(Topic, payload)
 
 def on_message(client, userdata, message):
-#  print("message received ", str(message.payload.decode("utf-8")))
-#    print("message topic=",message.topic)
 
   global LastTime
   
@@ -370,7 +358,6 @@ def on_message(client, userdata, message):
       ThisTime += int(InputStr[3]) * 60
       ThisTime += int(InputStr[4]) * 10
       ThisTime += int(InputStr[5])
-#      print(ThisTime,":",LastTime)
       if LastTime != ThisTime and InputStr[1] == 'R':
         LastTime = ThisTime
         SoundProcessFile(InputStr[2:6], True)
@@ -419,16 +406,12 @@ def on_message(client, userdata, message):
       readConfigurationFile()
 
 def playSong(channel, filename):
-#  print ("playing the following file : ",filename," on channel ", channel)
-#  print (filename)
   filename = str(filename)
   args = filename.split(":")
   args[0] = "000" + args[0]
   args[0] = args[0][-3:]
-#  print (args[0])
   partialFilename = "/SoundSystem/Sounds/" + args[0] + "*.*"
   filelist = glob.glob(partialFilename) 
-#  print(filelist)
   if len(filelist) >= 1:
     if len(args) > 1:
       numloops = int(args[1]) - 1
@@ -440,7 +423,6 @@ def stopSoundSystem():
 
   global soundInitialised
 
-#  print ("stopSoundSystem")
   try:
     pygame.mixer.quit()
   except:
@@ -451,7 +433,6 @@ def startSoundSystem():
 
   global soundInitialised
 
-#  print("startSoundSystem")
   try:
     pygame.mixer.init(allowedchanges=AUDIO_ALLOW_ANY_CHANGE, buffer=2048)
     pygame.mixer.Channel(0)
@@ -471,11 +452,6 @@ def startSoundSystem():
     currentChannel = 0
 
     soundInitialised = True
-#    for i in range(6):
-#      SongQueueHead[i] = 0
-#      SongQueueTail[i] = 0
-#      for j in range(40):
-#        SongQueue[i][j] = ""
   except:
     print("No card")
     soundInitialised = False
@@ -502,8 +478,8 @@ readVolumeFile()
 context = pyudev.Context()
 
 for device in context.list_devices(SUBSYSTEM='sound'):
-    if "card1" in str(device):
-      card_present = True
+  if "card1" in str(device):
+    card_present = True
 
 monitor = pyudev.Monitor.from_netlink(context)
 monitor.filter_by('sound')
@@ -522,7 +498,6 @@ client.loop_start() #start the loop
 time.sleep(1)
 
 while not mqtt_connected:
-#  print ("Waiting...")
   time.sleep(1)
 
 while (True):

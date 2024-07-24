@@ -1,3 +1,13 @@
+# Required Notice: Copyright (C) 2024 Martin Randall - All Rights Reserved
+#
+# You may use, distribute and modify this code under the
+# terms of the PolyForm Noncommercial 1.0.0 license.
+#
+# You should have received a copy of the PolyForm Noncommercial 1.0.0 license with
+# this file. 
+# If not, please visit: <https://polyformproject.org/licenses/noncommercial/1.0.0>
+#
+#
 import paho.mqtt.client as mqtt  #import the client
 import time
 
@@ -29,17 +39,12 @@ def on_message(client, userdata, message):
   global JMRI_message_present
   global registered
 
-#  print("message received ", str(message.payload.decode("utf-8")))
-#  print("message topic=",message.topic)
-
   InputStr = ""
   InputStr = str(message.payload.decode("utf-8"))
   payload = message.topic.split("/")
-#  print(payload)
 
   if message.topic.find("JMRI") != -1:
     if not JMRI_message_present:
-#      print("We've been here before!")
       deregisterCentrally()
 
   if message.topic.find("sensor") == -1:
@@ -71,7 +76,6 @@ def on_message(client, userdata, message):
 def registerCentrally():
   global registered
 
-#  print("registerCentrally")
   topic="/Devices/"+mqtt_client_id
   tempString="17,,1,00,localhost"
   client.publish(topic, tempString, retain=True)
@@ -82,7 +86,6 @@ def deregisterCentrally():
   global registered
   global JMRI_message_present
 
-#  print("deregisterCentrally")
   topic="/Devices/"+mqtt_client_id
   tempString="offline"
   client.publish(topic, tempString, retain=True)

@@ -1,3 +1,13 @@
+# Required Notice: Copyright (C) 2024 Martin Randall - All Rights Reserved
+#
+# You may use, distribute and modify this code under the
+# terms of the PolyForm Noncommercial 1.0.0 license.
+#
+# You should have received a copy of the PolyForm Noncommercial 1.0.0 license with
+# this file. 
+# If not, please visit: <https://polyformproject.org/licenses/noncommercial/1.0.0>
+#
+#
 import paho.mqtt.client as mqtt  #import the client
 import time
 
@@ -93,10 +103,8 @@ def on_message(client, userdata, message):
 
   if message.topic.find("Modules") != -1:
     messageValues = InputStr.split(",")
-#    print(messageValues[0]);
 
     if (messageValues[0] == "<WD>"):
-#      print ("Requesting config")
       Line = "<S,0"
       publishStringAsMessage(Line)
       starthours = "0"+str(defaultstarthours)
@@ -105,7 +113,6 @@ def on_message(client, userdata, message):
       startminutes = startminutes[-2:]
 
       Line = (f"{boardType},{APmarker},{ratio},{starthours},{startminutes},{clock_pause_string},{clock_start_string},{clock_reset_string},{clock_hour_plus},{clock_hour_minus},{clock_minute_plus},{clock_minute_minus}")
-#      print(Line)
       publishStringAsMessage(Line)
         
       Line = ">"
@@ -174,7 +181,6 @@ def on_message(client, userdata, message):
 
   if message.topic.find("Messages") != -1:
     if (InputStr[:3] == "<CQ"):
-#      print("Config usage check....")
       compareStr = InputStr[3:7]
       if (compareStr == clock_hour_plus):
         Line = "<Q,Clock,0,"+compareStr+",Increase Hours>"
@@ -302,7 +308,6 @@ while True:
     minutesstr = minutesstr[-2:]
     secondsstr = secondsstr[-2:]
     payload = f"<R{hoursstr}{minutesstr}{secondsstr}{APmarker}>"
-#    print (f"R{hoursstr}:{minutesstr}:{secondsstr}")
   else:
     hoursstr = "0" + str(hours)
     minutesstr = "0" + str(minutes)
@@ -311,7 +316,6 @@ while True:
     minutesstr = minutesstr[-2:]
     secondsstr = secondsstr[-2:]
     payload = f"<P{hoursstr}{minutesstr}{secondsstr}{APmarker}>"
-#    print (f"P{hoursstr}:{minutesstr}:{secondsstr}")
 
   topic="/Messages"
   client.publish(topic, payload, retain=False)
