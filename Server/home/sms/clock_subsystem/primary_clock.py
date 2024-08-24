@@ -258,7 +258,6 @@ running = True
 broker_address="127.0.0.1"
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, mqtt_client_id) #create new instance
 client.on_connect=on_connect
-client.on_message=on_message #attach function to callback
 topic="/Devices/"+mqtt_client_id
 client.will_set(topic, payload="offline", qos=0, retain=True)
 client.connect(broker_address) #connect to broker
@@ -287,6 +286,8 @@ clock_minute_minus = lines[9].rstrip()
 while not mqtt_connected:
   print ("Waiting...")
   time.sleep(1)
+
+client.on_message=on_message #attach function to callback
 
 #client.loop_forever()
 while True:

@@ -343,7 +343,7 @@ input[type=radio] {
   margin: 15% auto; /* 15% from the top and centered */
   padding: 20px;
   border: 1px solid #888;
-  width: 320px;
+  width: 375px;
   border-radius: 15px;
   z-index:10;
 }

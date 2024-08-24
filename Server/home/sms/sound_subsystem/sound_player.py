@@ -30,7 +30,7 @@ MAX_QUEUE_SIZE = 40
 Volume = [75] * MAX_CHANNELS
 LastTime = 0
 ThisTime = 0
-mqtt_client_id = "CentralSoundModule"
+mqtt_client_id = "Internal Sound"
 boardType = "16"
 
 SongQueueHead = [0 for i in range(MAX_CHANNELS)]
