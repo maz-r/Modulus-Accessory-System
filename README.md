@@ -33,8 +33,7 @@ When setting up your Raspberry Pi to host the Modulus base station, create the i
 To compile the module code, the following development environment is known to work:
 <br /><br />
 Arduino 1.8.13 <br /><br />
-Hardware support: <br />
-esp8266 at version 3.1.1<br /><br />
+Hardware support: esp8266 at version 3.1.1<br /><br />
 
 Libraries:<br /><br />
 ESP8266WiFi at version 1.0 <br /> 
