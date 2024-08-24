@@ -1,5 +1,13 @@
 /***************************************************
-
+# Required Notice: Copyright (C) 2024 Martin Randall - All Rights Reserved
+#
+# You may use, distribute and modify this code under the
+# terms of the PolyForm Noncommercial 1.0.0 license.
+#
+# You should have received a copy of the PolyForm Noncommercial 1.0.0 license with
+# this file. 
+# If not, please visit: <https://polyformproject.org/licenses/noncommercial/1.0.0>
+#
 ****************************************************/
 #define _ANALOG_CLOCK
 
@@ -9,17 +17,16 @@ Adafruit_StepperMotor *minutesMotor = AFMS.getStepper(200, 1);
 
 #define MAX_STEPS 2000
 
-const int Hours_hallPin = 14;
-const int Minutes_hallPin = 15;
-int  Hours_hallState = 0;          // variable for reading the hall sensor status
-int  Minutes_hallState = 0;          // variable for reading the hall sensor status
-
+const int     Hours_hallPin = 14;
+const int     Minutes_hallPin = 15;
+int           Hours_hallState = 0;          // variable for reading the hall sensor status
+int           Minutes_hallState = 0;          // variable for reading the hall sensor status
 unsigned long HourhandPosition = 0L;
 unsigned long MinutehandPosition = 0L;
 unsigned long HourhandTarget = 0L;
 unsigned long MinutehandTarget = 0L;
-int HourhandDirection;
-int MinutehandDirection;
+int           HourhandDirection;
+int           MinutehandDirection;
 
 long ConvertTimeToHandPositions(int Type, long targetHours, long targetMinutes, long targetSeconds)
 {
