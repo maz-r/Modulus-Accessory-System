@@ -109,10 +109,6 @@ void analogClockSetup()
 
 void UpdateTargets (long targetHours, long targetMinutes, long targetSeconds)
 {
-// long Hours;
-// long Minutes;
-// long HourDir;
-// long MinDir;
 int difference;
 
   HourhandTarget =   ConvertTimeToHandPositions(0, targetHours, targetMinutes, targetSeconds);

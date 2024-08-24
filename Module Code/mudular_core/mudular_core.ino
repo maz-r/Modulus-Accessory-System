@@ -101,7 +101,6 @@ ESP8266HTTPUpdateServer httpUpdater;
   PubSubClient MQTTclient;
 #endif
 
-//bool        InitialOutput;
 bool        InsideMessage;
 bool        ResetPressed;
 int         InCount;
@@ -123,10 +122,6 @@ char        ipAddress[20];
 int         OperatingMode;
 long        nextLEDFlash;
 int         flashstate = 0;
-//long        lastMsg = 0;
-//long        lastHeapPrint = 0;
-//char        msg[50];
-//int         value = 0;
 char        uniqueID[7];
 unsigned char ReceiveQueue[RECEIVEQUEUESIZE];
 int         ReceiveQueueHead = 0;
@@ -156,7 +151,6 @@ bool        ampm;
 bool        Clock24;
 int         secondCounter;
 int         Brightness;
-//char        tempString[1024];
 uint8_t     data[5];
 
 char serverIndex[512];

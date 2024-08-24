@@ -50,7 +50,6 @@ void ICACHE_RAM_ATTR DCC_Interrupt()
     }
     DCCqueueHead = (DCCqueueHead + 1) % DCC_QUEUE_SIZE;
     gInterruptMicros = DCCms;
-//    Serial.print(".");
 }
 
 void StartDCCInterrupt()
@@ -221,24 +220,20 @@ uint8_t i;
 
       if (InputStr[1] == 'U')
       {
-//        if (InputStr[2] == DCCMonitorBank)
-//        {
-          int val = ((InputStr[2] - 'A') * 100) + ((InputStr[3] - '0') * 10) + (InputStr[4] - '0');
-          sprintf (DCCpayload, "<q %d>\n", val);
-          Serial.print(DCCpayload);
-          sprintf (debug_string,"Sending %s", DCCpayload);
-          publishUsageAsMessage(debug_string);
-//        }
+        int val = ((InputStr[2] - 'A') * 100) + ((InputStr[3] - '0') * 10) + (InputStr[4] - '0');
+        sprintf (DCCpayload, "<q %d>\n", val);
+        Serial.print(DCCpayload);
+        sprintf (debug_string,"Sending %s", DCCpayload);
+        publishUsageAsMessage(debug_string);
       }
       
       if (InputStr[1] == 'S')
       {
-//        if (InputStr[2] == DCCMonitorBank)
-          int val = ((InputStr[2] - 'A') * 100) + ((InputStr[3] - '0') * 10) + (InputStr[4] - '0');
-          sprintf (DCCpayload, "<Q %d>\n", val);
-          Serial.print(DCCpayload);
-          sprintf (debug_string,"Sending %s", DCCpayload);
-          publishUsageAsMessage(debug_string);
+        int val = ((InputStr[2] - 'A') * 100) + ((InputStr[3] - '0') * 10) + (InputStr[4] - '0');
+        sprintf (DCCpayload, "<Q %d>\n", val);
+        Serial.print(DCCpayload);
+        sprintf (debug_string,"Sending %s", DCCpayload);
+        publishUsageAsMessage(debug_string);
       }
     }
   }
@@ -246,7 +241,6 @@ uint8_t i;
 
 void DCCLoop() 
 {
-//int j;
 char Banknumber[5];
 char Status;
 char MessageBank;
@@ -274,7 +268,7 @@ char debug_string[80];
     {
       payload[sendPointer] = 0;
       
-      sprintf(debug_string, "Reeived '%s'", payload);
+      sprintf(debug_string, "Received '%s'", payload);
       publishUsageAsMessage(debug_string);
       
       if (payload[1] == 's')
@@ -282,7 +276,6 @@ char debug_string[80];
       if (payload[1] == 'S')
         Serial.print("<Q 00>\n");
       if (payload[1] == 'Q')
-//        Serial.print("<q 00>\n<q 01>\n<q 02>\n<q 03>\n<q 04>\n<q 05>\n<q 06>\n<q 07>\n<q 08>\n<q 09>\n");
         Serial.print("<q 00>\n");
       if (payload[1] == '1')
         Serial.print("<p1>");
@@ -297,7 +290,6 @@ char debug_string[80];
   
   while (DCCqueueTail != DCCqueueHead)
   {
-//    Serial.println(DCCqueueTail);
     if (gInterruptTime[DCCqueueTail] == 1 && bitCount == 0)
     {
       preAmbleCount++;
@@ -315,31 +307,18 @@ char debug_string[80];
 
         if (bitCount > 27)
         {
-//          Serial.println("");
-//          Serial.print("(");Serial.print(RcvPacket, BIN);Serial.println(")");
           unsigned long tempPacket = (RcvPacket >> 25);
-//           Serial.print("(");Serial.print(tempPacket, BIN);Serial.println(")");
           if (tempPacket  == 2)
           {
-//            Serial.println("<ACC PKT?>");
             RcvByte[0] = (byte)((RcvPacket >> 19) & 0xFF);
             RcvByte[1] = (byte)((RcvPacket >> 10) & 0xFF);
             RcvByte[2] = (byte)((RcvPacket >> 1) & 0xFF);
-//            Serial.print("(");Serial.print(RcvPacket, BIN);Serial.println(")");
-//            Serial.print("(");Serial.print(RcvByte[0], BIN);Serial.println(")");
-//            Serial.print("(");Serial.print(RcvByte[1], BIN);Serial.println(")");
-//            Serial.print("(");Serial.print(RcvByte[2], BIN);Serial.print(") vs (");Serial.print(RcvByte[0] ^ RcvByte[1], BIN);Serial.println(")");
 
             if (RcvByte[2] == (RcvByte[0] ^ RcvByte[1]))
             {
               unsigned int Add1 = RcvByte[0] & 63;
-//              Serial.println (Add1);
-              
-//              Serial.print("(");Serial.print(RcvByte[1], BIN);Serial.println(")");
               unsigned int Add2 = 448 - ((RcvByte[1] & 112) << 2);
-//              Serial.println (Add2);
               int pair = (RcvByte[1] & 6) >> 1;
-//              Serial.println (pair);
               unsigned int Add = ((Add1 + Add2) * 4) + pair + 1;
               if (OffsetBy4 == 'Y' && Add >= 4)
                 Add -= 4;
@@ -349,17 +328,16 @@ char debug_string[80];
               {
                 if (Add != lastAdd || Direction != lastDirection || millis() > lastDCCSend)
                 {
-//                  Serial.print (Add);Serial.print(":");Serial.println (Direction);      
                   lastAdd = Add;
                   lastDirection = Direction;
                   Add1 = Add / 100;
                   MessageBank = DCCBank[Add1];
-//                  Serial.print(MessageBank);Serial.print(":");Serial.println(Add1);
+
                   if (MessageBank != '0')
                   {
                     Add2 = Add % 100;
                     sprintf(Banknumber,"%02d", Add2);
-//                    Serial.print (Add2);Serial.print(":");Serial.print(Banknumber);
+
                     if (Direction == 0)
                       if (DivergeRoutes)
                         Status = 'S';
@@ -376,15 +354,12 @@ char debug_string[80];
                     publishMessage(MessageBank, Banknumber, payload, true);
                     delay(250);
                     interrupts();
-//                    publishMessage(char bank, char *number, char *payload, bool retain)
-
                   }
                 }
               }
               lastGoodAdd = Add;
               lastGoodDirection = Direction;
               lastGoodTimeout = millis();
-//              Serial.println("First time");
             }
           }
           bitCount = 0;
