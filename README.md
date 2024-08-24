@@ -4,7 +4,7 @@
 Modulus consists of 2 parts; a central base station which controls to flow of events between the modules, and ESP8266 modules which act as the inputs (switches/sensors etc) and outputs (servos/relays/LED lighting/sounds/clocks etc).
 </p>
 <p>
-The files for the Modulus system central module (or base station) are under the /Server directory and the embedded source software for each module is under the /arduino directory.
+The files for the Modulus system central module (or base station) are under the /Server directory and the embedded source software for each module is under the /Module Code directory.
 <br /><br />
 The base station is hosted on a Raspberry Pi and has been tested on a 4+ with 1GB of RAM, running Raspberry Pi OS Lite
 (Release date: July 4th 2024, System: 32-bit, Kernel version: 6.6, Debian version: 12 (bookworm))
