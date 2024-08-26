@@ -45,7 +45,7 @@ unsigned long timeInSteps = 0L;
 
     timeInSteps = (timeInSteps * MAX_STEPS) / 43200L;
 
-//    DEBUG_print("Target  :");DEBUG_println(timeInSteps);
+    DEBUG_print("Target  :");DEBUG_println(timeInSteps);
   }
   else
   {
@@ -64,18 +64,21 @@ unsigned long timeInSteps = 0L;
 void ZeroHands()
 {
   DEBUG_println("Starting...");
-/*
+
   while (digitalRead(Hours_hallPin) == LOW)
   {
-    StepBackwards(Hour_motorPin, delayTime);
+    hoursMotor->onestep(FORWARD, DOUBLE);
+    delay(10);
   }  
 
-  while (digitalRead(Minutes_hallPin) == LOW)
+  while (digitalRead(Hours_hallPin) == HIGH)
   {
-    StepBackwards(Minute_motorPin, delayTime);
+    hoursMotor->onestep(FORWARD, DOUBLE);
+    delay(10);
   }
   
-  while (digitalRead(Hours_hallPin) == HIGH)
+/*  
+   while (digitalRead(Hours_hallPin) == LOW)
   {
     StepForwards(Hour_motorPin, delayTime);
   }
@@ -105,6 +108,8 @@ void analogClockSetup()
   randomSeed(analogRead(3));
 
   InCount = 0;
+
+  ZeroHands();
 }
 
 void UpdateTargets (long targetHours, long targetMinutes, long targetSeconds)
