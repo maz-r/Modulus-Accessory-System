@@ -13,7 +13,7 @@ void flashID_LED()
 {
 int i;
 
-  for (i=0;i<25;i++)
+  for (i=0;i<15;i++)
   {
     digitalWrite(LED_BUILTIN, HIGH);
     delay(300);
@@ -232,7 +232,7 @@ char ReadByte;
   return;
 }
 
-int MatchTimeTrigger(uint8_t CurrentHour, char Trig[], char Line[], char MatchEvent[])
+int MatchTimeTrigger(bool ApplyRandom, uint8_t CurrentHour, char Trig[], char Line[], char MatchEvent[])
 {
 uint8_t  LowHour;
 uint8_t  HighHour;
@@ -270,10 +270,19 @@ bool     continueMatching;
         }
         else
         {
-
-          if (Line[i] == '?' && (random(3) == 1) && continueMatching)
+          if (ApplyRandom)
           {
-            retval+=1;
+            if (Line[i] == '?' && (random(3) == 1) && continueMatching)
+            {
+              retval+=1;
+            }
+          }
+          else
+          {
+            if (Line[i] == '?' && continueMatching)
+            {
+              retval+=1;
+            }
           }
         }
       }
@@ -325,14 +334,24 @@ bool     continueMatching;
           }
           else
           {
-            if (Line[i] == '?' && (random(3) == 1))
+            if (ApplyRandom)
             {
-              retval+=1;
+              if (Line[i] == '?' && (random(3) == 1))
+              {
+                retval+=1;
+              }
+              else
+              {
+                retval = 0;
+                continueMatching = false;
+              }
             }
             else
             {
-              retval = 0;
-              continueMatching = false;
+              if (Line[i] == '?')
+              {
+                retval+=1;
+              }
             }
           }
         }
@@ -353,59 +372,97 @@ bool     continueMatching;
 
   return retval;
 }
-/*
-int FindMatch(char *MatchString, char *ReturnString)
+
+void ProcessFile(char *Trigger, bool TimeMessage, void (*ProcessLineFunction)(char *a, bool b, bool c, char *d, uint8_t e, uint8_t f))
 {
-int MatchCount;
-int Best;
-int BestLine;
-int CurrentPosition;
-int i;
-unsigned char LineCount;
-unsigned char CharCount;
-char ReadByte;
-bool eof;
+uint8_t  i;
+uint8_t  j;
+bool     Matched;
+uint8_t  BestMatch;
+uint8_t  thisMatch;
+char     TimeMatch[4];
+char     BestTimeMatch[4];
+uint8_t  CurrentHour;
+uint8_t  CurrentMinute;
+uint8_t  bytesRead;
 
-  Best = -1;
+  // rewind to start of file
+  Datafile.seek(0, SeekSet);
 
-  for (LineCount = 0; LineCount < NumberOfConfigLines; LineCount++)
+//  LineCount = 0;
+//  CharCount = 0;
+
+  CurrentHour = ((Trigger[0] - '0') * 10) + (Trigger[1] - '0');
+  CurrentMinute = ((Trigger[2] - '0') * 10) + (Trigger[3] - '0');
+
+  Matched = false;
+  BestMatch = 0;
+
+  for(i=0; i<NumberOfConfigLines && !Matched; i++)
   {
-    MatchCount = 0;
-    for (i=0; i<4 && MatchCount >= 0; i++)
+    if (TimeMessage)
     {
-      if (ConfigTriggers[LineCount][i] == MatchString[i])
-        MatchCount+=10;
-      else
-        if (ConfigTriggers[LineCount][i] == '#' && isdigit(MatchString[i]))
-          MatchCount+=2;
-        else
-          if (ConfigTriggers[LineCount][i] == '?' && random(5) == 1)
-            MatchCount+=1;
-          else
+      if (ConfigTriggers[i][0] != 'S' && ConfigTriggers[i][0] != 'U' && ConfigTriggers[i][0] != 'I')
+      {
+/*        
+        thisMatch = MatchTimeTrigger(CurrentHour, Trigger, ConfigTriggers[i], TimeMatch);
+        if (thisMatch > 0)
+        {
+          if (thisMatch > BestMatch)
           {
-            MatchCount = -1;
-            continue;
+            BestMatch = thisMatch;
+            for (j=0;j<4;j++)
+            {
+              BestTimeMatch[j] = TimeMatch[j];
+            }
           }
-    }
-
-    if (MatchCount > 0 && MatchCount > Best)
-    {
-      Best = MatchCount;
-      BestLine = LineCount;
-      if (MatchCount == 40)
-        continue;
-    }
-  }
-
-  if (Best > 0)
-  {
-    ReadConfigLineByNumber(BestLine, ReturnString);
-  }
-  DEBUG_print("Best match is:");DEBUG_println(ReturnString);
-
-  return Best;
-}
+          Matched = true;
+        }
+      }
 */
+        if (MatchTimeTrigger(false, CurrentHour, Trigger, ConfigTriggers[i], TimeMatch) > 0)
+        {
+          Matched = true;
+        }
+      }
+    }
+    else
+    {
+      if (strncmp(Trigger, ConfigTriggers[i], 4) == 0)
+      {
+        Matched = true;
+      }
+    }
+  }
+
+  if (Matched)
+  {
+    while (Datafile.available()) 
+    {    
+      bytesRead = Datafile.readBytesUntil(10, Line, 255);
+      Line[bytesRead] = 0;
+      Line[4] = 0;
+
+      if (TimeMessage)
+      {
+//        if (strncmp(BestTimeMatch, Line, 4) == 0)
+        if (MatchTimeTrigger(true, CurrentHour, Trigger, Line, TimeMatch) > 0)
+        {
+          DEBUG_print("Found it! ");DEBUG_println(Line);
+          (*ProcessLineFunction)(&Line[5], TimeMessage, false, Line, CurrentHour, CurrentMinute);
+        }
+      }
+      else
+      {
+        if (strncmp(Trigger, Line, 4) == 0)
+        {
+          (*ProcessLineFunction)(&Line[5], TimeMessage, false, BestTimeMatch, CurrentHour, CurrentMinute);
+        }
+      }
+    }
+  }
+  return;  
+}
 
 void AddNextQueueChar(unsigned char charToAdd)
 {
@@ -944,7 +1001,9 @@ char    tempString[80];
 bool    serialConnected;
 
   serialConnected = false;
-  
+  return false;
+
+/*
   HashCount = 0;
   while (Serial.available())
   {
@@ -982,7 +1041,7 @@ bool    serialConnected;
     if (WiFi.status() == WL_CONNECTED)
       WiFi.disconnect();
 
-    // let comms channel about ourselves....
+    // let comms channel know about ourselves....
     sprintf(tempString, "<CONFIG:%s,%02i,%s,%i,%02i>", modulename, boardType, HARDWARE_REVISION, atoi(MAJOR_VERSION), atoi(MINOR_VERSION));
     Serial.print(tempString);
 
@@ -993,6 +1052,7 @@ bool    serialConnected;
   }
 
   return serialConnected;
+*/
 }
 
 bool initialiseComms() 

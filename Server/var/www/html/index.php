@@ -731,7 +731,7 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
           break;
 
         case 'N':
-          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="LightingEffect'+uniqueID+rowNumber+'" onchange="ConfigLightingTypeChange('+boardType+','+uniqueID+rowNumber+');"><option value=\'S\'>Direct</option><option value=\'F\'>Flicker</option><option value=\'R\'>Arc</option><option value=\'Q\'>Cycle</option><option value=\'H\'>Signal Head</option><option value=\'P\'>Proportional</option></select>';
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="LightingEffect'+uniqueID+rowNumber+'" onchange="ConfigLightingTypeChange('+boardType+','+uniqueID+rowNumber+');"><option value=\'S\'>Direct</option><option value=\'F\'>Flicker</option><option value=\'B\'>Blink</option><option value=\'R\'>Arc</option><option value=\'Q\'>Cycle</option><option value=\'H\'>Signal Head</option><option value=\'P\'>Proportional</option></select>';
           if (typeof(ConfigDetails[fieldIndex]) == "undefined")
           {
             ConfigDetails[fieldIndex] = 0;
@@ -2830,12 +2830,20 @@ function ConfigLightingTypeChange(boardType, rowNumber)
         break;
 
       case 'F':
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.visibility = "visible";
+        // document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.visibility = "visible";
         document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "visible";
         document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
         document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "visible";
+        // document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "visible";
         document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "visible";
+        break;
+
+      case 'B':
+        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "visible";
+        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
+        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "visible";
+        // document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "visible";
+        // document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "visible";
         break;
 
       case 'R':

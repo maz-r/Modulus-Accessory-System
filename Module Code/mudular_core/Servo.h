@@ -465,6 +465,7 @@ CharCount = 0;
   return;  
 }
 
+/*
 void ProcessFile(char *Trigger, bool TimeMessage, void (*ProcessLineFunction)(char *a, bool b, bool c, char *d, uint8_t e, uint8_t f))
 {
 uint16_t LineCount;
@@ -564,7 +565,7 @@ uint8_t  bytesRead;
   }
   return;  
 }
-
+*/
 void moveServo(uint8_t servoNum, char Type, uint16_t newPosition)
 {
   if (newPosition >= SERVOMIN && newPosition <= SERVOMAX)
