@@ -37,7 +37,8 @@ char                    OffsetBy4;
 int                     sendPointer;
 char                    payload[20];
 
-void ICACHE_RAM_ATTR DCC_Interrupt()
+//void ICACHE_RAM_ATTR DCC_Interrupt()
+void IRAM_ATTR DCC_Interrupt()
 {
     DCCms = micros();
     if ((DCCms - gInterruptMicros) < MS1)
@@ -217,7 +218,7 @@ uint8_t i;
         Line[1] = 0;
         publishStringAsMessage(Line);
       }      
-
+/*
       if (InputStr[1] == 'U')
       {
         int val = ((InputStr[2] - 'A') * 100) + ((InputStr[3] - '0') * 10) + (InputStr[4] - '0');
@@ -235,6 +236,7 @@ uint8_t i;
         sprintf (debug_string,"Sending %s", DCCpayload);
         publishUsageAsMessage(debug_string);
       }
+*/
     }
   }
 }
@@ -252,7 +254,7 @@ char debug_string[80];
     lastGoodAdd = 9999;
     lastGoodDirection = 9;
   }
-
+/*
   while (Serial.available())
   {
     char x = (char)Serial.read();
@@ -287,7 +289,8 @@ char debug_string[80];
       sendPointer = 0;
     }
   }
-  
+*/
+
   while (DCCqueueTail != DCCqueueHead)
   {
     if (gInterruptTime[DCCqueueTail] == 1 && bitCount == 0)

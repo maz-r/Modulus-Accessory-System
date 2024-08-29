@@ -94,8 +94,8 @@ char tempString[40];
   
   if (boardType == LARGESECONDARYCLOCK)
   {
-    Wire.pins(4, 5);
-    Wire.begin();
+//    Wire.pins(4, 5);
+    Wire.begin(4, 5);
     delay(100);
     matrix.begin(0x70);
     Wire.setClock(100000L);

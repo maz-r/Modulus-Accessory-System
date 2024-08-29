@@ -142,8 +142,8 @@ char     Args[20][10];
 
   DEBUG_println("Initialising");
 
-  Wire.pins(4, 5);
-  Wire.begin();
+//  Wire.pins(4, 5);
+  Wire.begin(4, 5);
 
   delay(100);
 
