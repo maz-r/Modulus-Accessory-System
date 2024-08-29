@@ -38,7 +38,6 @@ client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 client.connect({onSuccess:onConnect});
 
-
 var menuclockcanvas;
 var menuclockctx;
 var menuclockradius;
