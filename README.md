@@ -33,25 +33,25 @@ When setting up your Raspberry Pi to host the Modulus base station, create the i
 To compile the module code, the following development environment is known to work:
 <br /><br />
 Arduino 1.8.13 <br /><br />
-Hardware support: esp8266 at version 3.1.1<br /><br />
+Hardware package: esp8266 at version 3.1.1<br /><br />
 
 Libraries:<br /><br />
-ESP8266WiFi at version 1.0 <br /> 
-LittleFS at version 0.1.0 <br />
+ESP8266WiFi at version 1.0 (included in the esp8266 v3.1.1 hardware package)<br /> 
+LittleFS at version 0.1.0  (included in the esp8266 v3.1.1 hardware package)<br />
 pubsubclient at version 2.8 <br />
-ESP8266WebServer at version 1.0 <br />
-Wire at version 1.0 <br />
+ESP8266WebServer at version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
+Wire at version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
 Adafruit-MCP23017-Arduino-Library-master at version 1.0.3 <br />
 LED_Backpack at version 1.1.6 <br />
 GFX_Graphics at version 1.3.6 <br />
 Adafruit_PWM_Servo_Driver_Library at version 1.0.2 <br />
-ESP8266HTTPUpdateServer at version 1.0 <br />
+ESP8266HTTPUpdateServer at version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
 Adafruit_Motor_Shield_V2_Library at version 1.1.3 <br />
 Adafruit_BusIO at version 1.16.0 <br />
 AccelStepper-1.61.0 at version 1.61 <br />
 Adafruit_NeoPixel at version 1.12.2 <br />
-SPI at version 1.0 <br />
-SoftwareSerial at version 7.0.0 <br />
+SPI at version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
+SoftwareSerial at version 7.0.0  (included in the esp8266 v3.1.1 hardware package)<br />
 TM1637 (from <a href="https://github.com/avishorp/TM1637">here</a>)<br />
 MAX7219LedMatrix (from <a href="https://github.com/squix78/MAX7219LedMatrix">here</a>) <br />
 LedControl (from <a href="https://code.google.com/archive/p/arudino-maxmatrix-library/">here</a>)<br />
