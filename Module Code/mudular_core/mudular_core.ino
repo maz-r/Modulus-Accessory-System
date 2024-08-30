@@ -32,7 +32,6 @@
 //  #error TARGET IS ESP8266
 #endif
 
-
 #define MAJOR_VERSION         "2"
 #define MINOR_VERSION         "00"
 
