@@ -617,12 +617,12 @@ long stepsToMove;
     {
       if (millis() > Motor[0].Delay)
       {
-        Serial.print("New target = ");
-        Serial.println(Motor[0].Target);
-        Serial.print("New speed = ");
-        Serial.println(Motor[0].Speed);
-        Serial.print("New accel = ");
-        Serial.println(Motor[0].Acceleration);
+        DEBUG_print("New target = ");
+        DEBUG_println(Motor[0].Target);
+        DEBUG_print("New speed = ");
+        DEBUG_println(Motor[0].Speed);
+        DEBUG_print("New accel = ");
+        DEBUG_println(Motor[0].Acceleration);
         
         digitalWrite(stepperEnablePin, LOW);
   

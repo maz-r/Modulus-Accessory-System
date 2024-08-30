@@ -549,12 +549,11 @@ char ReadByte;
   LineCount = 0;
   CharCount = 0;
 
-//  Serial.println();
   while (Datafile.available())
   {
     ReadByte = Datafile.read();
 
-    Serial.print(ReadByte,HEX);Serial.print(":");
+    // Serial.print(ReadByte,HEX);Serial.print(":");
 
     if (ReadByte == 10 || ReadByte == 13)
     {

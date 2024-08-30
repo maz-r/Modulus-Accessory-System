@@ -279,7 +279,7 @@ CharCount = 0;
   ArgCount = 0;
   ArgChar = 0;
 
-  Serial.print("Message = ");Serial.println(LinetoProcess);
+  // Serial.print("Message = ");Serial.println(LinetoProcess);
   
   for (i=0; i < strlen(LinetoProcess); i++)
   {

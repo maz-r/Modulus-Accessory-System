@@ -65,13 +65,13 @@ void ZeroHands()
 {
   DEBUG_println("Starting...");
 
-  while (digitalRead(Hours_hallPin) == LOW)
+  while (digitalRead(Hours_hallPin) == LOW && digitalRead(RESET_CONFIG) == 1)
   {
     hoursMotor->onestep(FORWARD, DOUBLE);
     delay(10);
   }  
 
-  while (digitalRead(Hours_hallPin) == HIGH)
+  while (digitalRead(Hours_hallPin) == HIGH  && digitalRead(RESET_CONFIG) == 1)
   {
     hoursMotor->onestep(FORWARD, DOUBLE);
     delay(10);
@@ -94,10 +94,10 @@ void analogClockSetup()
 {
   if (!AFMS.begin()) 
   {
-    Serial.println("Could not find Motor Shield. Check wiring.");
+    DEBUG_println("Could not find Motor Shield. Check wiring.");
     while (1);
   }
-  Serial.println("Motor Shield found.");
+  DEBUG_println("Motor Shield found.");
 
   hoursMotor->setSpeed(10);  // 10 rpm
   minutesMotor->setSpeed(10);  // 10 rpm

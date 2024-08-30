@@ -59,7 +59,8 @@
 
 char INITIALISE_STRING[]="INIT";
 
-#define DEBUG
+// uncomment the line below to enable debug output
+//#define DEBUG
 
 #ifdef DEBUG
   #define DEBUG_print(x)      Serial.print(x)
@@ -178,15 +179,19 @@ int i;
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
   ResetPressed = false;
-  Serial.begin(115200);
 
-//  LittleFS.begin();
   LittleFS.begin();
   delay(100);
 
   WiFi.setOutputPower(10);
 
-  delay(1000);
+  // delay(1000);
+
+  Serial.begin(115200);
+  while (!Serial)
+    ;
+    
+  Serial.println("Starting...");
 
   File f = LittleFS.open("/module.conf", "r");
   DEBUG_print("Reset = ");DEBUG_println(digitalRead(RESET_CONFIG));
