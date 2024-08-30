@@ -52,7 +52,7 @@ Adafruit PWM Servo Driver Library version 1.0.2 <br />
 Adafruit Motor Shield V2 Library version 1.1.3 <br />
 Adafruit BusIO version 1.16.0 <br />
 Adafruit NeoPixel version 1.12.2 <br />
-AccelStepper-1.61.0 version 1.61 <br />
+AccelStepper by Mike McCauley version 1.61 <br />
 TM1637 (from <a href="https://github.com/avishorp/TM1637">here</a>)<br />
 MAX7219LedMatrix (from <a href="https://github.com/squix78/MAX7219LedMatrix">here</a>) <br />
 LedControl (from <a href="https://code.google.com/archive/p/arudino-maxmatrix-library/">here</a>)<br />
