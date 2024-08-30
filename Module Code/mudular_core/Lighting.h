@@ -436,6 +436,9 @@ uint8_t  SignalHeadBits;
                 {
                   LightDetails[LightNum].TimeHigh = 0L;
                 }
+                LightDetails[LightNum].OnTime = 0L;
+                LightDetails[LightNum].OffTime = 0L;
+                LightDetails[LightNum].NextStepTime = 0L;
                 break;
 
               case 'S':
@@ -443,7 +446,9 @@ uint8_t  SignalHeadBits;
                 LightDetails[LightNum].SpeedDown  = LightTarget2;
                 LightDetails[LightNum].Target     = map(LightTarget1,0,100,0,4095);
                 LightDetails[LightNum].HighTarget = LightDetails[LightNum].Target;
+                LightDetails[LightNum].NextStepTime = 0L;
                 LightDetails[LightNum].OnTime = 0L;
+                LightDetails[LightNum].OffTime = 0L;
                 break;
 
               case 'F':
@@ -457,6 +462,7 @@ uint8_t  SignalHeadBits;
                 LightDetails[LightNum].TimeLow      = LightTarget6;
                 LightDetails[LightNum].TimeHigh     = LightTarget3 * 100L;
                 LightDetails[LightNum].OnTime       = millis() + (LightTarget3 * 100L);
+                LightDetails[LightNum].OffTime      = 0L;
                 LightDetails[LightNum].NextStepTime = 0L;
                 break;
 
@@ -469,6 +475,7 @@ uint8_t  SignalHeadBits;
                 LightDetails[LightNum].Target       = LightDetails[LightNum].HighTarget;
                 LightDetails[LightNum].TimeLow      = LightTarget6 * 10L;
                 LightDetails[LightNum].OnTime       = millis() + (LightTarget3 * 100L);
+                LightDetails[LightNum].OffTime      = 0L;
                 LightDetails[LightNum].NextStepTime = 0L;
                 break;
 
@@ -494,6 +501,7 @@ uint8_t  SignalHeadBits;
                 LightDetails[LightNum].Interval   = LightTarget8 * 100L;
                 LightDetails[LightNum].OffTime    = 0L;
                 LightDetails[LightNum].OnTime     = 0L;
+                LightDetails[LightNum].NextStepTime = 0L;
                 break;
         
               case 'Q':
@@ -511,6 +519,9 @@ uint8_t  SignalHeadBits;
                 LightDetails[LightNum].CurrentCount = LightTarget7;
                 
                 LightDetails[LightNum].Interval     = LightTarget8 * 100L;
+                LightDetails[LightNum].OffTime      = 0L;
+                LightDetails[LightNum].OnTime       = 0L;
+                LightDetails[LightNum].NextStepTime = 0L;
                 break;
                 
               case 'P':
@@ -997,7 +1008,6 @@ bool     Changed;
 //              LightDetails[CurrentLight].NextStepTime = millis() + (LightDetails[CurrentLight].TimeLow/2) + random(LightDetails[CurrentLight].TimeLow/2);
               LightDetails[CurrentLight].NextStepTime = millis() + random(LightDetails[CurrentLight].TimeLow);
 
-              moveLight(CurrentLight, LightDetails[CurrentLight].Actual, true);
               if (LightDetails[CurrentLight].Actual == LightDetails[CurrentLight].LowTarget)
               {
                 LightDetails[CurrentLight].Target = LightDetails[CurrentLight].LowTarget;
@@ -1008,6 +1018,7 @@ bool     Changed;
                 LightDetails[CurrentLight].Target = LightDetails[CurrentLight].HighTarget;
                 LightDetails[CurrentLight].Actual = LightDetails[CurrentLight].LowTarget;
               }
+              moveLight(CurrentLight, LightDetails[CurrentLight].Actual, true);
             }
             else
             {
