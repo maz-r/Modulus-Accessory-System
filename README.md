@@ -36,23 +36,23 @@ Arduino 1.8.13 <br /><br />
 Hardware package: esp8266 at version 3.1.1<br /><br />
 
 Libraries:<br /><br />
-ESP8266WiFi at version 1.0 (included in the esp8266 v3.1.1 hardware package)<br /> 
-LittleFS at version 0.1.0  (included in the esp8266 v3.1.1 hardware package)<br />
-ESP8266WebServer at version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
-ESP8266HTTPUpdateServer at version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
-Wire at version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
-SPI at version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
-SoftwareSerial at version 7.0.0  (included in the esp8266 v3.1.1 hardware package)<br />
+ESP8266WiFi version 1.0 (included in the esp8266 v3.1.1 hardware package)<br /> 
+LittleFS version 0.1.0  (included in the esp8266 v3.1.1 hardware package)<br />
+ESP8266WebServer version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
+ESP8266HTTPUpdateServer version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
+Wire version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
+SPI version 1.0  (included in the esp8266 v3.1.1 hardware package)<br />
+SoftwareSerial version 7.0.0  (included in the esp8266 v3.1.1 hardware package)<br />
 <br />
-pubsubclient by Nick O'Leary at version 2.8 <br />
-Adafruit MCP23017 Arduino Library at version 1.0.3 <br />
-Adafruit LED Backpack at version 1.1.6 <br />
-Adafruit GFX_Graphics at version 1.3.6 <br />
-Adafruit PWM Servo Driver Library at version 1.0.2 <br />
-Adafruit Motor Shield V2 Library at version 1.1.3 <br />
-Adafruit BusIO at version 1.16.0 <br />
-Adafruit NeoPixel at version 1.12.2 <br />
-AccelStepper-1.61.0 at version 1.61 <br />
+pubsubclient by Nick O'Leary  version 2.8 <br />
+Adafruit MCP23017 Arduino Library  version 1.0.3 <br />
+Adafruit LED Backpack version 1.1.6 <br />
+Adafruit GFX_Graphics version 1.3.6 <br />
+Adafruit PWM Servo Driver Library version 1.0.2 <br />
+Adafruit Motor Shield V2 Library version 1.1.3 <br />
+Adafruit BusIO version 1.16.0 <br />
+Adafruit NeoPixel version 1.12.2 <br />
+AccelStepper-1.61.0 version 1.61 <br />
 TM1637 (from <a href="https://github.com/avishorp/TM1637">here</a>)<br />
 MAX7219LedMatrix (from <a href="https://github.com/squix78/MAX7219LedMatrix">here</a>) <br />
 LedControl (from <a href="https://code.google.com/archive/p/arudino-maxmatrix-library/">here</a>)<br />
