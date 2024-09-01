@@ -55,7 +55,6 @@ Adafruit NeoPixel version 1.12.2 <br />
 AccelStepper by Mike McCauley version 1.61 <br />
 TM1637 (from <a href="https://github.com/avishorp/TM1637">here</a>)<br />
 MAX7219LedMatrix (from <a href="https://github.com/squix78/MAX7219LedMatrix">here</a>) <br />
-LedControl (from <a href="https://code.google.com/archive/p/arudino-maxmatrix-library/">here</a>)<br />
 <br />
 Step-by-step instructions on how to install and configure all of the relevant packages are available via support.
 <h2>Licencing</h2>
