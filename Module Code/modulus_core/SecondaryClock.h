@@ -110,7 +110,6 @@ char tempString[40];
   Running = false;
   ampm = true;
   Clock24 = false;
-  secondCounter = 0;
 
   File f = LittleFS.open("/secondaryclock.conf", "r");
   if (!f)

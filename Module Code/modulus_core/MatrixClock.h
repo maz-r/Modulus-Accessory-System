@@ -262,7 +262,6 @@ char tempString[40];
   ampm = true;
   afternoon = 0;
   AMPMstyle = 1;
-  secondCounter = 0;
   fontType = 0;
   scrollingDown = false;
   millisCount = 99;

@@ -140,7 +140,6 @@ long        last_message_millis = 0L;
 int         hours = 0;
 int         minutes = 0;
 int         seconds = 0;
-int         secondCount = 0;
 byte        RxQueue[MAX_QUEUE];
 int         RxQueuePointer = 0;
 bool        flashing;
@@ -148,7 +147,6 @@ bool        colon;
 bool        Running;
 bool        ampm;
 bool        Clock24;
-int         secondCounter;
 int         Brightness;
 uint8_t     data[5];
 
