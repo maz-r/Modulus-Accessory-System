@@ -77,7 +77,6 @@ char INITIALISE_STRING[]="INIT";
 #include <Wire.h>
 #include <Adafruit_MCP23017.h>
 #include <Adafruit_LEDBackpack.h>
-// #include <LedControl.h>
 #include <Adafruit_PWMServoDriver.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include <TM1637Display.h>
