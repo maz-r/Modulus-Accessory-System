@@ -305,10 +305,10 @@ int i;
         break;
 
       case SOUNDMODULE:
+        initialiseComms();
         #ifdef _SOUND_PLAYER
           soundSetup();
         #endif
-        initialiseComms();
         break;
 
       case STEPPERMOTOR:

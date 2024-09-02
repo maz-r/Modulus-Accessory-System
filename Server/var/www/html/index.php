@@ -7223,7 +7223,7 @@ $(document).ready(function(){
   <div class="servo-modal-content" style="width:650px;">
     <h3 id="popupSignalHeadTitle">Signal Board Setting</h3>
     <table>
-      <tr id = 'popupSignalHead'>
+      <tr id = 'popupLightingSignalHead'>
         <td>
           Pattern
         </td>

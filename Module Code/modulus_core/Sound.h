@@ -414,7 +414,7 @@ char tempString[40];
 int16_t folderAndIndex[10];
 
   mp3[0].begin(9600, SWSERIAL_8N1, 5, 4, false, 64, 11);
-  mp3[1].begin(9600, SWSERIAL_8N1, 14, 15, false, 64, 11);
+  mp3[1].begin(9600, SWSERIAL_8N1, 15, 13, false, 64, 11);
   delay(500);
 
   sendCommand(0, 0x0E, 0, 0);
