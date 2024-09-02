@@ -1,0 +1,11 @@
+<h1>Modulus Roadmap</h1>
+<h2>Current thinking around new functionality</h2>
+<p>
+Roadmap</p>
+<ul>
+  <li> Stepper motor driver for turntables/traversers etc</li>
+  <li> Loconet interface for interfacing to DCC systems</li>
+  <li> RFID reader for identification; this may introduce a new message type so is a substantial piece of work</li>
+</ul>
+<br />
+<p>Obviously, over time, these will change and morph based on feedback and </p>
