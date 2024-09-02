@@ -6,8 +6,10 @@ Modulus consists of 2 parts; a central base station which controls to flow of ev
 <p>
 The files for the Modulus system central module (or base station) are under the /Server directory and the embedded source software for each module is under the /Module Code directory.
 <br /><br />
-The base station is hosted on a Raspberry Pi and has been tested on a 4+ with 1GB of RAM, running Raspberry Pi OS Lite
+The base station is hosted on a Raspberry Pi and has been tested on a 4+ with 1GB of RAM and a Zero W, running Raspberry Pi OS Lite
 (Release date: July 4th 2024, System: 32-bit, Kernel version: 6.6, Debian version: 12 (bookworm))
+</p>
+<p>The Zero is a good option where the network interfaces, central sound aren't needed and only a few modules are required.
 </p>
 <p>
 Each module is an ESP8266 microprocessor with associated ancillary electronics. The electronic modules needed are dependent upon the function that the module is configured to provide. There is only one software set for the modules and the functionality is set during the initial setup of the module. Changing functionality of the module is achieved by simply going through the initial setup process again.
