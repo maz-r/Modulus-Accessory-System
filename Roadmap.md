@@ -10,4 +10,4 @@ Roadmap</p>
   <li> Adding basic variable 'maths' so that calculations can be performed rather than just fixing a variable as a literal value</li> 
 </ul>
 <br />
-<p>Obviously, over time, these will change and morph based on feedback and </p>
+<p>Obviously, over time, these will change and morph based on feedback and enthusiasm!</p>
