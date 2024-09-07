@@ -8,6 +8,7 @@ Roadmap</p>
   <li> RFID reader for identification; this may introduce a new message type so is a substantial piece of work</li>
   <li> Adding 'variables' to all the modules so that actions can take variables instead of fixed values; this would be a massive upgrade</li>
   <li> Adding basic variable 'maths' so that calculations can be performed rather than just fixing a variable as a literal value</li> 
+  <li> Add logic such that actions only occur if certain conditions are met</li>
 </ul>
 <br />
 <p>Obviously, over time, these will change and morph based on feedback and enthusiasm!</p>

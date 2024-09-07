@@ -509,13 +509,13 @@ uint8_t  SignalHeadBits;
                 {
                   LightDetails[LightNum].HighTarget   = map(LightTarget4,0,100,0,4095);
                   LightDetails[LightNum].LowTarget    = map(LightTarget1,0,100,0,4095);
-                  PosNeg = 1;
+                  PosNeg = 2;
                 }
                 else
                 {
                   LightDetails[LightNum].HighTarget   = map(LightTarget1,0,100,0,4095);
                   LightDetails[LightNum].LowTarget    = map(LightTarget4,0,100,0,4095);
-                  PosNeg = 2;
+                  PosNeg = 1;
                 }
                 
                 // work out how many minutes are between the 2 times in the trigger...
@@ -523,10 +523,9 @@ uint8_t  SignalHeadBits;
                 {
                   TimeLow = TimeRange[0] - 'a';
                   TimeHigh = TimeRange[1] - 'a';
-                  
-                  if (TimeHigh > TimeLow)
+                  if (TimeHigh >= TimeLow)
                   {
-                    NumberOfMinutes = TimeHigh - TimeLow;
+                    NumberOfMinutes = TimeHigh - TimeLow + 1;
                   }
                   else
                   {
@@ -548,12 +547,21 @@ uint8_t  SignalHeadBits;
                   TimeDifference += CurrentMinutes;
                 
                   LightDifference = LightDetails[LightNum].HighTarget - LightDetails[LightNum].LowTarget;
-      
+
+//DEBUG_print("LED     :");DEBUG_println(LightNum);
+//DEBUG_print("High    :");DEBUG_println(LightDetails[LightNum].HighTarget);
+//DEBUG_print("Low     :");DEBUG_println(LightDetails[LightNum].LowTarget);
+//DEBUG_print("TimeDiff:");DEBUG_println(TimeDifference);
+//DEBUG_print("LightDif:");DEBUG_println(LightDifference);
+//DEBUG_print("PosNeg  :");DEBUG_println(PosNeg);
+
                   if (PosNeg == 2)
                     LightDetails[LightNum].Target = (uint16_t)((float)((float)TimeDifference / (float)NumberOfMinutes) * (float)LightDifference) + LightDetails[LightNum].LowTarget;
                   else
                     LightDetails[LightNum].Target = LightDetails[LightNum].HighTarget - (uint16_t)((float)((float)TimeDifference / (float)NumberOfMinutes) * (float)LightDifference);
                   
+//DEBUG_print("Target   :");DEBUG_println(LightDetails[LightNum].Target);
+
                   LightDetails[LightNum].HighTarget = LightDetails[LightNum].Target;
                   LightDetails[LightNum].LowTarget  = LightDetails[LightNum].Target;
                   LightDetails[LightNum].SpeedUp    = LightTarget2;
@@ -898,6 +906,7 @@ bool     Changed;
       {
         switch (LightDetails[CurrentLight].Effect)
         {
+          case 'P':
           case 'H':
             moveLight(CurrentLight, LightDetails[CurrentLight].Target, true);
             break;

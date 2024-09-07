@@ -63,7 +63,7 @@ unsigned long timeInSteps = 0L;
 
 void ZeroHands()
 {
-  DEBUG_println("Starting...");
+  DEBUG_println("Who is Starting...");
 
   while (digitalRead(Hours_hallPin) == LOW && digitalRead(RESET_CONFIG) == 1)
   {
