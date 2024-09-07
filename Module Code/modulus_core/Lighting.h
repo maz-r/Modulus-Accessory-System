@@ -13,22 +13,10 @@
 
 #define MAXLIGHTS 16 
 
-//#define OUTPUT_QUEUE_SIZE 18
-#define PROGRAM_CONF_PIN 3
-#define PROGRAM_PIN 4
-#define CHIPSELECT  10
-#define POWER_CONTROL_PIN D8
-
 char LIGHT_CONFIG_FILE[40]="LIGHT.CFG";
 char LIGHT_DEFAULT_FILE[40]="LIGHT_DEFAULT.CFG";
 
 Adafruit_PWMServoDriver Lights = Adafruit_PWMServoDriver();
-
-float sinCurve;
-
-uint8_t LightSequence2[2] = {41, 8};
-uint8_t LightSequence3[4] = {8, 41, 25, 8};
-uint8_t LightSequence4[4] = {8, 41, 25, 8};
 
 typedef struct {
   int16_t  Target;
@@ -47,7 +35,6 @@ typedef struct {
   uint32_t NextStepTime;
   uint8_t  Effect;
   uint16_t CurrentCount;
-  uint8_t  TempCount;
   bool     Moved;
   bool     Inverted;
 } LIGHT_DETAILS;
