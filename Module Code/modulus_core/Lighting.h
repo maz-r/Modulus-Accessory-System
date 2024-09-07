@@ -63,7 +63,6 @@ char ReadByte;
 int  i;
 
   sprintf(Line, "<I,%02d,", boardType);
-//  publishStringAsMessage(Line);
 
   for (i=0; i< 16; i++)
   {
@@ -271,9 +270,7 @@ uint8_t  SignalHeadBits;
       if (Args[i][j] == '$')
       {
         // substitute the letter for saved variable
-//        DEBUG_print("Substituting ");DEBUG_print(Args[i][j+1]);DEBUG_print(" with ");
         sprintf(tempString,"%s%s",tempString, Variables[Args[i][++j] - 'A']);
-//        DEBUG_println(tempString);
       }
       else
         sprintf(tempString,"%s%c",tempString, Args[i][j]);
@@ -286,7 +283,6 @@ uint8_t  SignalHeadBits;
   if (Args[0][0] == '=')
   {
     // remember the value we are told to
-//    DEBUG_print("Saving ");DEBUG_print(Args[2]);DEBUG_print(" as ");DEBUG_println(Args[1]);
     if ((Args[1][0] - 'A') >=0 && (Args[1][0] - 'A') <= 25)
       strcpy(Variables[Args[1][0] - 'A'], Args[2]);
   }
@@ -307,13 +303,9 @@ uint8_t  SignalHeadBits;
     {
       EndLightNumber = values[1];      
     }
-/*
- *  THIS PART NEEDS REVISITING! NumRandom has been removed!!!!
- */
- 
-    DEBUG_println(Args[1][0]);
 
     NumRandom = 0;
+
     /* if the lights are being treated separately....*/
     if (Args[1][0] == 'I')
     {
@@ -362,8 +354,6 @@ uint8_t  SignalHeadBits;
       }
       else
         MustBeOneHit[StartLightNumber] = 1;
-
-//      DEBUG_print("MustBeOneHit = ");DEBUG_println(MustBeOneHit);
     }
 
     for (LightNum = StartLightNumber; LightNum <= EndLightNumber; LightNum++)
@@ -372,16 +362,6 @@ uint8_t  SignalHeadBits;
       {
         LightDetails[LightNum].Moved = true;
 
-        DEBUG_print(LightNum);DEBUG_print(" : ");
-
-        if (MustBeOneHit[LightNum] == 0 && NumRandom > 0)
-        {
-          DEBUG_println("Not doing this one");
-          continue;
-        }
-        else
-          DEBUG_println("Doing this one");
-      
         LightEffect  = Args[2][0];
 
         LightTarget1 = atoi(Args[4]); // TargetHigh
@@ -525,7 +505,6 @@ uint8_t  SignalHeadBits;
                 break;
                 
               case 'P':
-//                DEBUG_print(TimeRange[0]);DEBUG_print(TimeRange[1]);DEBUG_print(TimeRange[2]);DEBUG_println(TimeRange[3]);
                 if (LightTarget4 > LightTarget1)
                 {
                   LightDetails[LightNum].HighTarget   = map(LightTarget4,0,100,0,4095);
@@ -539,18 +518,12 @@ uint8_t  SignalHeadBits;
                   PosNeg = 2;
                 }
                 
-//                DEBUG_print("High : ");DEBUG_println(LightDetails[LightNum].HighTarget);
-//                DEBUG_print("Low  : ");DEBUG_println(LightDetails[LightNum].LowTarget);
-                
                 // work out how many minutes are between the 2 times in the trigger...
                 if (CurrentHour != 255 && CurrentMinutes != 255)
                 {
                   TimeLow = TimeRange[0] - 'a';
                   TimeHigh = TimeRange[1] - 'a';
                   
-//                  DEBUG_print("TimeLow = ");DEBUG_println(TimeLow);
-//                  DEBUG_print("TimeHigh = ");DEBUG_println(TimeHigh);
-      
                   if (TimeHigh > TimeLow)
                   {
                     NumberOfMinutes = TimeHigh - TimeLow;
@@ -559,9 +532,6 @@ uint8_t  SignalHeadBits;
                   {
                     NumberOfMinutes = (TimeHigh + 24) - TimeLow;
                   }
-      
-//                  DEBUG_print("CurrentHour = ");DEBUG_println(CurrentHour);
-//                  DEBUG_print("CurrentMinutes = ");DEBUG_println(CurrentMinutes);
 
                   if (CurrentHour < TimeLow)
                   {
@@ -573,21 +543,17 @@ uint8_t  SignalHeadBits;
                   }
       
                   NumberOfMinutes *= 60;
-//                  DEBUG_print("NumberOfMinutes = ");DEBUG_println(NumberOfMinutes);
       
                   TimeDifference *= 60;
                   TimeDifference += CurrentMinutes;
-//                  DEBUG_print("TimeDifference = ");DEBUG_println(TimeDifference);
                 
                   LightDifference = LightDetails[LightNum].HighTarget - LightDetails[LightNum].LowTarget;
-//                  DEBUG_print("LightDifference = ");DEBUG_println(LightDifference);
       
                   if (PosNeg == 2)
                     LightDetails[LightNum].Target = (uint16_t)((float)((float)TimeDifference / (float)NumberOfMinutes) * (float)LightDifference) + LightDetails[LightNum].LowTarget;
                   else
                     LightDetails[LightNum].Target = LightDetails[LightNum].HighTarget - (uint16_t)((float)((float)TimeDifference / (float)NumberOfMinutes) * (float)LightDifference);
                   
-//                  DEBUG_print("Target = ");DEBUG_println(LightDetails[LightNum].Target);
                   LightDetails[LightNum].HighTarget = LightDetails[LightNum].Target;
                   LightDetails[LightNum].LowTarget  = LightDetails[LightNum].Target;
                   LightDetails[LightNum].SpeedUp    = LightTarget2;
@@ -657,13 +623,7 @@ float sineCurve;
         Lights.setPWM(LightNum, 0, 4096);
         delay(2);
       }
-/*
-      // latch the signal head outputs AND clear the counter
-      Servos.setPWM(CurrentServo, 4096, 0);
-      delay(80);
-      Servos.setPWM(CurrentServo, 0, 4096);
-      delay(70);
-*/
+
       if (LightDetails[LightNum].TimeHigh > 0)
       {
         if (LightDetails[LightNum].Target == 0)
@@ -688,9 +648,9 @@ float sineCurve;
   }
   else
   {
-    if (proportional)
+    if (newPosition != 0)
     {
-      if (newPosition != 0)
+      if (proportional)
       {
         sineCurve = newPosition/4096.0;
         sineCurve = sineCurve * sineCurve;
@@ -703,16 +663,18 @@ float sineCurve;
       else
       {
         if (!LightDetails[LightNum].Inverted)
-          Lights.setPWM(LightNum, 0, 4095);
+          Lights.setPWM(LightNum, 0, 4095 - newPosition);
         else
-          Lights.setPWM(LightNum, 0, 0);
+          Lights.setPWM(LightNum, 0, newPosition);
       }
     }
     else
+    {
       if (!LightDetails[LightNum].Inverted)
-        Lights.setPWM(LightNum, 0, 4095 - newPosition);
+        Lights.setPWM(LightNum, 4096, 0);
       else
-        Lights.setPWM(LightNum, 0, newPosition);
+        Lights.setPWM(LightNum, 0, 4096);
+    }
   }
   return;
 }
