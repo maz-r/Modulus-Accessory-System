@@ -449,14 +449,14 @@ uint8_t  bytesRead;
         if (MatchTimeTrigger(true, CurrentHour, Trigger, Line, TimeMatch) > 0)
         {
           DEBUG_print("Found it! ");DEBUG_println(Line);
-          (*ProcessLineFunction)(&Line[5], TimeMessage, false, Line, CurrentHour, CurrentMinute);
+          (*ProcessLineFunction)(&Line[5], TimeMessage, false, TimeMatch, CurrentHour, CurrentMinute);
         }
       }
       else
       {
         if (strncmp(Trigger, Line, 4) == 0)
         {
-          (*ProcessLineFunction)(&Line[5], TimeMessage, false, BestTimeMatch, CurrentHour, CurrentMinute);
+          (*ProcessLineFunction)(&Line[5], TimeMessage, false, Line, CurrentHour, CurrentMinute);
         }
       }
     }

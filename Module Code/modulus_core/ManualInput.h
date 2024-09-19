@@ -56,7 +56,7 @@ int8_t i;
 
 //  Input += BoardOffset;
 
-  DEBUG_print("Sending new status message :");
+//  DEBUG_print("Sending new status message :");
   Message[0] = SOM;
   if (Status == 1)
     Message[1] = 'U';

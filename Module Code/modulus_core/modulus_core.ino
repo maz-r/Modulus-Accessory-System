@@ -59,7 +59,7 @@
 char INITIALISE_STRING[]="INIT";
 
 // uncomment the line below to enable debug output
-// #define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
   #define DEBUG_print(x)      Serial.print(x)
