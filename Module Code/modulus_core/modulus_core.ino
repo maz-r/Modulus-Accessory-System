@@ -88,7 +88,6 @@ char INITIALISE_STRING[]="INIT";
 #include <Adafruit_MotorShield.h>
 #include <AccelStepper.h>
 #include <SPI.h>
-// #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
@@ -179,7 +178,7 @@ char MysuccessResponse[] = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Up
 #include "SecondaryClock.h"
 #include "matrix_clock.h"
 #include "lighting.h"
-#include "sound_dfplayer.h"
+#include "sound.h"
 #include "StepperControl.h"
 #include "AnalogClock.h"
 #include "OLEDClock.h"
