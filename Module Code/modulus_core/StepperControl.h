@@ -1,13 +1,5 @@
 /***************************************************
-# Required Notice: Copyright (C) 2024 Martin Randall - All Rights Reserved
-#
-# You may use, distribute and modify this code under the
-# terms of the PolyForm Noncommercial 1.0.0 license.
-#
-# You should have received a copy of the PolyForm Noncommercial 1.0.0 license with
-# this file. 
-# If not, please visit: <https://polyformproject.org/licenses/noncommercial/1.0.0>
-#
+
 ****************************************************/
 #define _STEPPER_CONTROL
 #define MAX_MOTORS        2
@@ -385,8 +377,9 @@ uint8_t  NumRandom;
         }        
       }
 */
-      LineCount = 0;
-      CharCount = 0;
+        LineCount = 0;
+        CharCount = 0;
+      }
     }
   }
   
@@ -617,12 +610,12 @@ long stepsToMove;
     {
       if (millis() > Motor[0].Delay)
       {
-        DEBUG_print("New target = ");
-        DEBUG_println(Motor[0].Target);
-        DEBUG_print("New speed = ");
-        DEBUG_println(Motor[0].Speed);
-        DEBUG_print("New accel = ");
-        DEBUG_println(Motor[0].Acceleration);
+        Serial.print("New target = ");
+        Serial.println(Motor[0].Target);
+        Serial.print("New speed = ");
+        Serial.println(Motor[0].Speed);
+        Serial.print("New accel = ");
+        Serial.println(Motor[0].Acceleration);
         
         digitalWrite(stepperEnablePin, LOW);
   

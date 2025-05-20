@@ -56,7 +56,7 @@ int8_t i;
 
 //  Input += BoardOffset;
 
-//  DEBUG_print("Sending new status message :");
+  DEBUG_print("Sending new status message :");
   Message[0] = SOM;
   if (Status == 1)
     Message[1] = 'U';
@@ -72,7 +72,7 @@ int8_t i;
   Message[6] = 0;
   number[2] = 0;
 
-  publishMessage(BoardAddress, number, Message, true);
+  // publishMessage(BoardAddress, number, Message, true);
   DEBUG_println(Message);
   digitalWrite(LED_BUILTIN, HIGH);
 }
@@ -142,8 +142,8 @@ char     Args[20][10];
 
   DEBUG_println("Initialising");
 
-//  Wire.pins(4, 5);
-  Wire.begin(4, 5);
+  Wire.pins(4, 5);
+  Wire.begin();
 
   delay(100);
 

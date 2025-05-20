@@ -1,13 +1,5 @@
 /***************************************************
-# Required Notice: Copyright (C) 2024 Martin Randall - All Rights Reserved
-#
-# You may use, distribute and modify this code under the
-# terms of the PolyForm Noncommercial 1.0.0 license.
-#
-# You should have received a copy of the PolyForm Noncommercial 1.0.0 license with
-# this file. 
-# If not, please visit: <https://polyformproject.org/licenses/noncommercial/1.0.0>
-#
+
 ****************************************************/
 #define _ANALOG_CLOCK
 
@@ -17,16 +9,17 @@ Adafruit_StepperMotor *minutesMotor = AFMS.getStepper(200, 1);
 
 #define MAX_STEPS 2000
 
-const int     Hours_hallPin = 14;
-const int     Minutes_hallPin = 15;
-int           Hours_hallState = 0;          // variable for reading the hall sensor status
-int           Minutes_hallState = 0;          // variable for reading the hall sensor status
+const int Hours_hallPin = 14;
+const int Minutes_hallPin = 15;
+int  Hours_hallState = 0;          // variable for reading the hall sensor status
+int  Minutes_hallState = 0;          // variable for reading the hall sensor status
+
 unsigned long HourhandPosition = 0L;
 unsigned long MinutehandPosition = 0L;
 unsigned long HourhandTarget = 0L;
 unsigned long MinutehandTarget = 0L;
-int           HourhandDirection;
-int           MinutehandDirection;
+int HourhandDirection;
+int MinutehandDirection;
 
 long ConvertTimeToHandPositions(int Type, long targetHours, long targetMinutes, long targetSeconds)
 {
@@ -45,7 +38,7 @@ unsigned long timeInSteps = 0L;
 
     timeInSteps = (timeInSteps * MAX_STEPS) / 43200L;
 
-    DEBUG_print("Target  :");DEBUG_println(timeInSteps);
+//    DEBUG_print("Target  :");DEBUG_println(timeInSteps);
   }
   else
   {
@@ -63,22 +56,19 @@ unsigned long timeInSteps = 0L;
 
 void ZeroHands()
 {
-  DEBUG_println("Who is Starting...");
-
-  while (digitalRead(Hours_hallPin) == LOW && digitalRead(RESET_CONFIG) == 1)
+  DEBUG_println("Starting...");
+/*
+  while (digitalRead(Hours_hallPin) == LOW)
   {
-    hoursMotor->onestep(FORWARD, DOUBLE);
-    delay(10);
+    StepBackwards(Hour_motorPin, delayTime);
   }  
 
-  while (digitalRead(Hours_hallPin) == HIGH  && digitalRead(RESET_CONFIG) == 1)
+  while (digitalRead(Minutes_hallPin) == LOW)
   {
-    hoursMotor->onestep(FORWARD, DOUBLE);
-    delay(10);
+    StepBackwards(Minute_motorPin, delayTime);
   }
   
-/*  
-   while (digitalRead(Hours_hallPin) == LOW)
+  while (digitalRead(Hours_hallPin) == HIGH)
   {
     StepForwards(Hour_motorPin, delayTime);
   }
@@ -94,10 +84,10 @@ void analogClockSetup()
 {
   if (!AFMS.begin()) 
   {
-    DEBUG_println("Could not find Motor Shield. Check wiring.");
+    Serial.println("Could not find Motor Shield. Check wiring.");
     while (1);
   }
-  DEBUG_println("Motor Shield found.");
+  Serial.println("Motor Shield found.");
 
   hoursMotor->setSpeed(10);  // 10 rpm
   minutesMotor->setSpeed(10);  // 10 rpm
@@ -108,12 +98,14 @@ void analogClockSetup()
   randomSeed(analogRead(3));
 
   InCount = 0;
-
-  ZeroHands();
 }
 
 void UpdateTargets (long targetHours, long targetMinutes, long targetSeconds)
 {
+// long Hours;
+// long Minutes;
+// long HourDir;
+// long MinDir;
 int difference;
 
   HourhandTarget =   ConvertTimeToHandPositions(0, targetHours, targetMinutes, targetSeconds);

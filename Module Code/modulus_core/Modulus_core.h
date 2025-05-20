@@ -272,7 +272,7 @@ bool     continueMatching;
         {
           if (ApplyRandom)
           {
-            if (Line[i] == '?' && (random(3) == 1) && continueMatching)
+            if (Line[i] == '?' && (random(5) == 1) && continueMatching)
             {
               retval+=1;
             }
@@ -336,7 +336,7 @@ bool     continueMatching;
           {
             if (ApplyRandom)
             {
-              if (Line[i] == '?' && (random(3) == 1))
+              if (Line[i] == '?' && (random(5) == 1))
               {
                 retval+=1;
               }

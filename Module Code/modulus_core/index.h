@@ -31,6 +31,7 @@ const char INDEX_page[] PROGMEM = R"=====(
   <option value="9">Sound Module</option>
   <option value="2">Digital Clock</option>
   <option value="8">Matrix Clock</option>
+  <option value="17">OLED Clock</option>
   <option value="11">Analogue Clock</option>
   <option value="14">DCC Interface</option>
 <!--

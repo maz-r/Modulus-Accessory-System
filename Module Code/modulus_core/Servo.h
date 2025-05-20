@@ -8,7 +8,7 @@
 # this file. 
 # If not, please visit: <https://polyformproject.org/licenses/noncommercial/1.0.0>
 #
-****************************************************/ 
+****************************************************/
 #define _SERVO
 
 #define MAXSERVOS 16 
@@ -48,7 +48,6 @@ typedef struct {
   uint8_t  BounceWaveform;
   uint8_t  PulseDuration;
   char     Direction;
-  char     Trigger[4];
   char     ServoStartMessage[4];
   char     ServoEndMessage[4];
 } SERVO_DETAILS;
@@ -62,11 +61,13 @@ SERVO_DETAILS newServoDetails[MAXSERVOS];
 uint8_t       bounceStarts[5] = {0,17,30,41,50};
 int16_t       Waveforms[5][SERVO_STEPS]={
                     {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,-1},
-                    {0,0,0,0,0,1,1,2,2,3,4,4,5,6,7,8,9,10,12,13,14,15,17,18,20,22,23,25,27,29,31,33,35,37,39,42,44,46,49,51,54,57,59,62,65,68,70,73,76,78,81,83,85,88,90,92,94,96,98,100,102,104,105,107,109,110,112,113,114,115,117,118,119,120,121,122,123,123,124,125,125,126,126,127,127,127,127,127,128,-1},
-                    {0,3,5,8,11,14,16,19,21,24,26,28,31,33,35,37,39,41,43,44,46,48,49,51,52,53,55,56,57,58,59,60,61,62,63,63,64,64,65,65,66,66,66,66,66,67,67,67,67,67,67,67,68,68,69,69,70,70,71,72,73,74,75,76,77,78,79,81,82,84,85,87,89,90,92,94,96,98,100,102,104,107,109,112,114,117,119,122,125,128,-1},
-                    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,3,3,3,4,4,5,5,6,6,7,8,8,9,10,11,12,13,13,14,16,17,18,19,20,21,23,24,26,27,29,30,32,34,36,37,39,41,43,46,48,50,52,55,57,60,62,65,68,71,74,77,80,83,86,89,93,96,100,104,107,111,115,119,123,128,-1},
-                    {0,1,1,2,2,4,4,4,6,8,8,8,10,12,14,16,18,20,22,26,28,32,36,40,44,48,52,56,52,52,46,40,34,34,34,34,34,34,34,34,34,42,44,46,48,50,52,54,56,60,64,68,72,78,84,90,98,106,114,124,132,140,144,140,136,134,132,130,128,-1}
+                    {0,1,2,3,4,7,10,13,16,18,20,22,24,26,28,30,32,34,36,38,40,41,42,43,44,46,48,49,50,51,52,53,54,55,56,56,56,57,58,58,58,59,60,60,60,61,61,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,62,63,63,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,65,66,66,66,67,68,68,68,69,70,71,72,72,72,73,74,75,76,77,78,80,82,83,84,85,86,88,90,92,94,96,98,100,102,104,106,108,110,114,116,119,122,125,128},
+                    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,4,4,4,5,6,6,6,7,8,9,10,11,12,13,14,16,18,20,22,23,24,27,30,32,34,37,40,42,44,48,50,53,56,60,64,67,70,73,76,79,82,84,86,89,92,94,96,99,102,103,104,106,108,110,112,113,114,115,116,117,118,119,120,120,121,122,122,122,123,124,124,124,124,124,124,125,126,126,126,127,128,-1,-1,-1,-1,128,128,128,128,128,128,128,128,128,128,-1,-1},
+                    {0,0,1,1,2,2,3,4,4,5,6,7,8,9,10,11,13,14,15,17,18,20,21,23,25,27,29,31,33,35,37,39,41,43,46,48,51,53,56,59,61,64,67,70,73,76,79,82,86,89,92,96,99,103,106,110,114,118,122,126,128,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+                    {0,1,1,2,2,4,4,4,6,8,8,8,10,12,14,16,18,20,22,26,28,32,36,52,56,52,52,46,40,34,34,34,42,42,42,44,44,46,46,48,48,50,50,52,54,56,60,64,68,72,78,84,90,98,106,114,124,132,140,144,140,136,134,132,130,128,-1}
               };
+
+//                    {0,1,1,1,1,1,1,1,2,2,2,4,4,6,6,7,8,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,24,26,28,30,32,34,36,38,40,42,44,46,49,52,56,60,66,72,79,82,87,92,97,102,108,114,121,128,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
 
 int8_t        BounceWaveforms[2][65]={
                     {0,15,28,39,48,55,60,63,64,63,60,55,48,39,28,15,0,0,11,20,27,32,35,36,35,32,27,20,11,0,0,9,16,21,24,25,24,21,16,9,0,0,7,12,15,16,15,12,7,0,0,5,8,9,8,5,0,-1,-1,-1,-1,-1,-1,-1,-1},
@@ -99,8 +100,6 @@ char    bankNumber;
 char    number[3];
 
   i = 0;
-
-//  DEBUG_print("Sending ");DEBUG_print(message[0]);DEBUG_print(message[1]);DEBUG_print(message[2]);DEBUG_println(message[3]);
 
   bankNumber = message[1];
   number[0] = message[2];
@@ -138,12 +137,15 @@ bool    endoffile;
     while (!endoffile)
     {
       ReadByte = Configfile.read();
+//      DEBUG_print(ReadByte);
       if (ReadByte == 255 || ReadByte == 10 || ReadByte == 13|| ReadByte == 0)
       {
         if (CharCount != 0)
         {
           // terminate the line
           Line[CharCount] = 0;
+ //         DEBUG_println(Line);
+          // LineCount++;
           CharCount = 0;
           
           for(i=0; i<4; i++)
@@ -153,9 +155,11 @@ bool    endoffile;
           ArgChar = 0;
           for (i=0; i < strlen(Line); i++)
           {
+ //           DEBUG_print(i);DEBUG_print(":");DEBUG_println(Line[i]);
             if(Line[i] == ',' || Line[i] == 10 || Line[i] == 13 || Line[i] == 0)
             {
               Args[ArgCount][ArgChar] = 0;
+ //             DEBUG_println(Args[ArgCount]);
               ArgCount++;
               ArgChar = 0;
             }
@@ -164,15 +168,19 @@ bool    endoffile;
               if(Line[i] != 10 && Line[i] != 13)
               {
                 Args[ArgCount][ArgChar] = Line[i];
+//                DEBUG_print(Args[ArgCount]);
                 ArgChar++;
               }
             }
           }
           
           Args[ArgCount][ArgChar] = 0;
+ //         DEBUG_print("Arg 0  = ");DEBUG_println(Args[0]);
+ //         DEBUG_print("Arg 1  = ");DEBUG_println(Args[1]);
 
           ServoNum = atoi(Args[0]);
           servoDetails[ServoNum].Actual = atoi(Args[1]);
+ //         DEBUG_print("Setting servo ");DEBUG_print(ServoNum);DEBUG_print(" to ");DEBUG_println(servoDetails[ServoNum].Actual);
         }
 
         if (ReadByte == 255 || ReadByte == 0)
@@ -206,8 +214,6 @@ uint8_t  ThisServo;
   // open file for writing i.e. create new file
   Configfile = LittleFS.open(SERVO_DEFAULT_FILE, "w");
 
-//  DEBUG_println("Writing defaults");
-
   // loop around writing every servo position as it stands
   for (i=0; i<MAXSERVOS; i++)
   {
@@ -240,7 +246,7 @@ uint8_t  ThisServo;
   return;
 }
 
-void ServoProcessLine(char *LinetoProcess, bool TimeMessage, bool Override, char *Trigger, uint8_t CurrentHour, uint8_t CurrentMinutes)
+void ServoProcessLine(char *LinetoProcess, bool TimeMessage, bool Override, char *BestTimeMatch, uint8_t CurrentHour, uint8_t CurrentMinutes)
 {
 uint16_t LineCount;
 uint8_t  CharCount;
@@ -273,7 +279,7 @@ CharCount = 0;
   ArgCount = 0;
   ArgChar = 0;
 
-  // Serial.print("Message = ");Serial.println(LinetoProcess);
+  Serial.print("Message = ");Serial.println(LinetoProcess);
   
   for (i=0; i < strlen(LinetoProcess); i++)
   {
@@ -313,7 +319,7 @@ CharCount = 0;
     if (tempString[0] != 0)
       strcpy (Args[i], tempString);
   }
-//  DEBUG_println("=====================================");
+  
   if (Args[0][0] == '=')
   {
     // remember the value we are told to
@@ -363,145 +369,199 @@ CharCount = 0;
     }
  
     ServoSpeed = atoi(Args[4]);
+/*
+    if (Type == 'H')
+    {
+      ServoTarget = servoDetails[ServoNum].Actual;
+      if (ServoTarget > 127)
+        ServoTarget = 0;
+ 
+      DEBUG_print("Start: ");DEBUG_println(ServoTarget);
+      SignalHeadBits = 2;
+      
+      for (i=2; i<8; i++)
+      {
+        if (Args[3][i] == 'S')
+        {
+          ServoTarget |= SignalHeadBits;
+        }
+        if (Args[3][i] == 'R')
+        {
+          ServoTarget &= ~SignalHeadBits;
+        }
 
+        SignalHeadBits <<= 1;
+        DEBUG_print(i);DEBUG_print("    : ");DEBUG_println(ServoTarget);
+
+        if (Args[3][1] == 'F')
+        {
+          if (ServoSpeed == 0)
+            ServoSpeed = 1;
+        }
+        else
+        {
+          ServoSpeed = 0;
+        }
+      }
+    }
+*/    
     strcpy (EndMessage, Args[5]);
 
     servoDetails[ServoNum].Matched = true;
 
-//    if ((servoDetails[ServoNum].Actual != ServoTarget && ServoTarget != servoDetails[ServoNum].Target)|| Type == 'R')
-    // if we are not in the requested place (or this is a relay)
-    if ((servoDetails[ServoNum].Actual != ServoTarget) || Type == 'R')
+    if ((servoDetails[ServoNum].Actual != ServoTarget && newServoDetails[ServoNum].Target != ServoTarget) || Type == 'R')
     {
-      // if there isn't a new target position that will have been set by a previous matching line
-      if (newServoDetails[ServoNum].Target == -1 || (servoDetails[ServoNum].Actual == servoDetails[ServoNum].Target) || (servoDetails[ServoNum].Actual != servoDetails[ServoNum].Target && servoDetails[ServoNum].Actual != newServoDetails[ServoNum].Target))
+      newServoDetails[ServoNum].Waveform = atoi(Args[6]);
+      if(Args[7][0] == 'R' || Args[7][0] == 'r')
+        newServoDetails[ServoNum].NumberOfBounces = random(6);
+      else
+        newServoDetails[ServoNum].NumberOfBounces = atoi(Args[7]);
+      newServoDetails[ServoNum].BounceWaveform = atoi(Args[8]);
+      newServoDetails[ServoNum].BounceAmplitude = atoi(Args[9]) * 8;
+      newServoDetails[ServoNum].BounceSpeed = atoi(Args[10]);
+      newServoDetails[ServoNum].Direction = Direction;
+      newServoDetails[ServoNum].AccessoryType = Type;
+      newServoDetails[ServoNum].PulseDuration = PulseDuration;
+
+      newServoDetails[ServoNum].Target = ServoTarget;
+
+      newServoDetails[ServoNum].Speed = ServoSpeed;
+
+      if (StartMessage[0] != 0)
       {
-//        DEBUG_println("New target acquired");
-//        DEBUG_print("New Target for ");DEBUG_println(ServoNum);
-//        DEBUG_print("servoDetails[ServoNum].Actual:");DEBUG_println(servoDetails[ServoNum].Actual);
-//        DEBUG_print("servoDetails[ServoNum].Target:");DEBUG_println(servoDetails[ServoNum].Target);
-//        DEBUG_print("newServoDetails[ServoNum].Target:");DEBUG_println(newServoDetails[ServoNum].Target);
-//        DEBUG_print("ServoTarget                  :");DEBUG_println(ServoTarget);
-        newServoDetails[ServoNum].Waveform = atoi(Args[6]);
-        if(Args[7][0] == 'R' || Args[7][0] == 'r')
-          newServoDetails[ServoNum].NumberOfBounces = random(6);
-        else
-          newServoDetails[ServoNum].NumberOfBounces = atoi(Args[7]);
-        newServoDetails[ServoNum].BounceWaveform = atoi(Args[8]);
-        newServoDetails[ServoNum].BounceAmplitude = atoi(Args[9]) * 8;
-        newServoDetails[ServoNum].BounceSpeed = atoi(Args[10]);
-        newServoDetails[ServoNum].Direction = Direction;
-        newServoDetails[ServoNum].AccessoryType = Type;
-        newServoDetails[ServoNum].PulseDuration = PulseDuration;
-  
-        newServoDetails[ServoNum].Target = ServoTarget;
-  
-        newServoDetails[ServoNum].Speed = ServoSpeed;
-
         for (i=0; i<4; i++)
-          newServoDetails[ServoNum].Trigger[i] = Trigger[i];
-
-        if (StartMessage[0] != 0)
-        {
-          for (i=0; i<4; i++)
-            newServoDetails[ServoNum].ServoStartMessage[i] = StartMessage[i];
-        }
-        else
-          newServoDetails[ServoNum].ServoStartMessage[0] = 0;
-  
-        if (EndMessage[0] != 0)
-        {
-          for (i=0; i<4; i++)
-            newServoDetails[ServoNum].ServoEndMessage[i] = EndMessage[i];
-        }
-        else
-          newServoDetails[ServoNum].ServoEndMessage[0] = 0;
-  
-        if (ServoDelay != 0)
-          newServoDetails[ServoNum].Delay = millis() + (ServoDelay * 100L);
-        else
-          newServoDetails[ServoNum].Delay = 0L;
+          newServoDetails[ServoNum].ServoStartMessage[i] = StartMessage[i];
       }
-//      else
-//      {
-//        DEBUG_println("Do something different here!");
-//        DEBUG_print("New Target for ");DEBUG_println(ServoNum);
-//        DEBUG_print("servoDetails[ServoNum].Actual:");DEBUG_println(servoDetails[ServoNum].Actual);
-//        DEBUG_print("servoDetails[ServoNum].Target:");DEBUG_println(servoDetails[ServoNum].Target);
-//        DEBUG_print("newServoDetails[ServoNum].Target:");DEBUG_println(newServoDetails[ServoNum].Target);
-//        DEBUG_print("ServoTarget                  :");DEBUG_println(ServoTarget);
-//      }
+      else
+        newServoDetails[ServoNum].ServoStartMessage[0] = 0;
+
+      if (EndMessage[0] != 0)
+      {
+        for (i=0; i<4; i++)
+          newServoDetails[ServoNum].ServoEndMessage[i] = EndMessage[i];
+      }
+      else
+        newServoDetails[ServoNum].ServoEndMessage[0] = 0;
+
+      if (ServoDelay != 0)
+        newServoDetails[ServoNum].Delay = millis() + (ServoDelay * 100L);
+      else
+        newServoDetails[ServoNum].Delay = 0L;
     }
     else
     {
-//      DEBUG_println("Already here, so....");
-      // have we already been told to go somewhere else then leave those details alone
-      if (newServoDetails[ServoNum].Target == -1)
+      if (EndMessage[0] != 0)
       {
-//        DEBUG_print("Ignoring new Target for ");DEBUG_println(ServoNum);
-//        DEBUG_print("servoDetails[ServoNum].Actual:");DEBUG_println(servoDetails[ServoNum].Actual);
-//        DEBUG_print("servoDetails[ServoNum].Target:");DEBUG_println(servoDetails[ServoNum].Target);
-//        DEBUG_print("newServoDetails[ServoNum].Target:");DEBUG_println(newServoDetails[ServoNum].Target);
-//        DEBUG_print("ServoTarget                  :");DEBUG_println(ServoTarget);
-  
-        if (servoDetails[ServoNum].Actual == ServoTarget)
-        {
-//          DEBUG_println("We appear to be in the right place, so send some start/end move messages");
-          servoDetails[ServoNum].Target = servoDetails[ServoNum].Actual;
-          
-          if (StartMessage[0] != 0)
-          {
-            AddToOutputQueue(StartMessage, true);
-            servoDetails[ServoNum].ServoStartMessage[0] = 0;
-          }
-          newServoDetails[ServoNum].ServoStartMessage[0] = 0;
-          servoDetails[ServoNum].ServoStartMessage[0] = 0;
-          
-          if (EndMessage[0] != 0)
-          {
-            AddToOutputQueue(EndMessage, true);
-            servoDetails[ServoNum].ServoEndMessage[0] = 0;
-          }
-          newServoDetails[ServoNum].ServoEndMessage[0] = 0;
-          servoDetails[ServoNum].ServoEndMessage[0] = 0;
-        }
-      }
-      else
-      {
-//        DEBUG_print("Leaving existing target for ");DEBUG_println(ServoNum);        
-//        DEBUG_print("servoDetails[ServoNum].Actual   :");DEBUG_println(servoDetails[ServoNum].Actual);
-//        DEBUG_print("servoDetails[ServoNum].Target   :");DEBUG_println(servoDetails[ServoNum].Target);
-//        DEBUG_print("newServoDetails[ServoNum].Target:");DEBUG_println(newServoDetails[ServoNum].Target);
-//        DEBUG_print("ServoTarget                     :");DEBUG_println(ServoTarget);
-//        DEBUG_print("Trigger                         :");
-//        for (i=0; i<4; i++)
-//          DEBUG_print(Trigger[i]);
-//        DEBUG_println();
-//        DEBUG_print("LastTrigger                     :");
-//        for (i=0; i<4; i++)
-//          DEBUG_print(newServoDetails[ServoNum].Trigger[i]);
-//        DEBUG_println();
-
-//        if (servoDetails[ServoNum].Target != ServoTarget && newServoDetails[ServoNum].Target != servoDetails[ServoNum].Target)
-        if (strncmp(Trigger, newServoDetails[ServoNum].Trigger, 4) != 0)
-        {
-//          DEBUG_println("Different triggers");
-          newServoDetails[ServoNum].Target = -1;
-        }
-      }
+        //send finish message
+        AddToOutputQueue(EndMessage, true);
+        EndMessage[0] = 0;
+      }        
     }
-
-//    DEBUG_println("****************************");
-//    DEBUG_print("Details are now this for ");DEBUG_println(ServoNum);        
-//    DEBUG_print("servoDetails[ServoNum].Actual   :");DEBUG_println(servoDetails[ServoNum].Actual);
-//    DEBUG_print("servoDetails[ServoNum].Target   :");DEBUG_println(servoDetails[ServoNum].Target);
-//    DEBUG_print("newServoDetails[ServoNum].Target:");DEBUG_println(newServoDetails[ServoNum].Target);
-//    DEBUG_println("****************************");
-    
   }
 
   LineCount = 0;
   CharCount = 0;
 
+  return;  
+}
+
+void ProcessFile(char *Trigger, bool TimeMessage, void (*ProcessLineFunction)(char *a, bool b, bool c, char *d, uint8_t e, uint8_t f))
+{
+uint16_t LineCount;
+uint8_t  CharCount;
+char     ReadByte;
+uint8_t  ServoNum;
+uint16_t ServoDelay;
+char     StartMessage[5];
+char     EndMessage[5];
+uint16_t ServoTarget;
+uint16_t ServoSpeed;
+uint8_t  i;
+uint8_t  j;
+uint8_t  ArgCount;
+uint8_t  ArgChar;
+char     Args[20][10];
+char     tempString[40];
+bool     Matched;
+uint8_t  BestMatch;
+uint8_t  thisMatch;
+bool     RequestedRandom;
+char     TimeMatch[4];
+char     BestTimeMatch[4];
+uint8_t  CurrentHour;
+uint8_t  CurrentMinute;
+uint8_t  NumRandom;
+uint8_t  bytesRead;
+
+  // rewind to start of file
+  Datafile.seek(0, SeekSet);
+
+  LineCount = 0;
+  CharCount = 0;
+
+  CurrentHour = ((Trigger[0] - '0') * 10) + (Trigger[1] - '0');
+  CurrentMinute = ((Trigger[2] - '0') * 10) + (Trigger[3] - '0');
+
+  Matched = false;
+  BestMatch = 0;
+//  for(i=0; i<NumberOfConfigLines && !Matched; i++)
+  for(i=0; i<NumberOfConfigLines; i++)
+  {
+    if (TimeMessage)
+    {
+      if (ConfigTriggers[i][0] != 'S' && ConfigTriggers[i][0] != 'U' && ConfigTriggers[i][0] != 'I')
+      {
+        thisMatch = MatchTimeTrigger(CurrentHour, Trigger, ConfigTriggers[i], TimeMatch);
+        if (thisMatch > 0)
+        {
+          if (thisMatch > BestMatch)
+          {
+            BestMatch = thisMatch;
+            for (i=0;i<4;i++)
+            {
+              BestTimeMatch[i] = TimeMatch[i];
+            }
+          }
+          Matched = true;
+        }
+      }
+    }
+    else
+    {
+      if (strncmp(Trigger, ConfigTriggers[i], 4) == 0)
+      {
+        Matched = true;
+      }
+    }
+  }
+
+  if (Matched)
+  {
+    while (Datafile.available()) 
+    {    
+      bytesRead = Datafile.readBytesUntil(10, Line, 255);
+      Line[bytesRead] = 0;
+      
+      StartMessage[0] = 0;
+      EndMessage[0] = 0;
+
+      if (TimeMessage)
+      {
+        if (strncmp(BestTimeMatch, Line, 4) == 0)
+        {
+          DEBUG_print("Found it! ");DEBUG_println(BestTimeMatch);
+           (*ProcessLineFunction)(&Line[5], TimeMessage, false, BestTimeMatch, CurrentHour, CurrentMinute);
+        }
+      }
+      else
+      {
+        if (strncmp(Trigger, Line, 4) == 0)
+        {
+           (*ProcessLineFunction)(&Line[5], TimeMessage, false, BestTimeMatch, CurrentHour, CurrentMinute);
+        }        
+      }
+    }
+  }
   return;  
 }
 
@@ -660,7 +720,7 @@ char     Args[MAXSERVOS][4];
       // if it is a remote config message....
       if (InputStr[1] == 'C' && InputStr[2] == 'T')
       {
-        ServoProcessLine(&InputStr[8], false, true, (char *)"INIT", 0, 0);
+        ServoProcessLine(&InputStr[8], false, true, (char *)NULL, 0, 0);
       }
       
       // if it is a remote config message....
@@ -738,14 +798,11 @@ int8_t   i;
           WaveType = servoDetails[CurrentServo].Waveform;
           val = val+((Waveforms[WaveType][servoDetails[CurrentServo].NextWaveStep]*servoDetails[CurrentServo].Difference)>>7);
           moveServo(CurrentServo, servoDetails[CurrentServo].AccessoryType, val);
-          
           if (servoDetails[CurrentServo].Actual != val)
           {
             servoDetails[CurrentServo].Actual = val;
           }
-          
           servoDetails[CurrentServo].NextWaveStep++;
-          
           if(servoDetails[CurrentServo].NextWaveStep >= SERVO_STEPS || Waveforms[WaveType][servoDetails[CurrentServo].NextWaveStep] == -1)
           {
             // we have reached the end of the movement...
@@ -754,16 +811,13 @@ int8_t   i;
             servoDetails[CurrentServo].Moved = true;
   
             servoDetails[CurrentServo].NextWaveStep = -1;
-
+            
             if (servoDetails[CurrentServo].NumberOfBounces != 0)
             {
               servoDetails[CurrentServo].NextBounceStep = bounceStarts[5 - servoDetails[CurrentServo].NumberOfBounces];
               servoDetails[CurrentServo].StartPos = servoDetails[CurrentServo].Actual;
               servoDetails[CurrentServo].NextStepTime = 0L;
             }
-
-            ServoWriteDefaultsFile();
-
           }
         }
       }
@@ -798,7 +852,79 @@ int8_t   i;
           servoDetails[CurrentServo].Moved = false;
       }
     }
+/*
+    if (servoDetails[CurrentServo].AccessoryType == 'H')
+    {
+      // if we are showing the right lights, do nothing!
+      if (servoDetails[CurrentServo].Target != servoDetails[CurrentServo].Actual)
+      {
+//        DEBUG_print("Target: ");DEBUG_print(servoDetails[CurrentServo].Target);DEBUG_print(" Actual: ");DEBUG_println(servoDetails[CurrentServo].Actual);
+        servoDetails[CurrentServo].Actual++;
 
+        // and now count out the right (binary)
+        if (servoDetails[CurrentServo].Actual < servoDetails[CurrentServo].Target)
+        {
+            // switch on
+            Servos.setPWM(CurrentServo, 4096, 0);
+            delay(20);
+            // switch off
+            Servos.setPWM(CurrentServo, 0, 4096);
+            delay(20);
+        }
+
+/*
+        // latch the signal head outputs AND clear the counter
+        Servos.setPWM(CurrentServo, 4096, 0);
+        delay(80);
+        Servos.setPWM(CurrentServo, 0, 4096);
+        delay(70);
+*/
+/*
+        if (servoDetails[CurrentServo].Target <= servoDetails[CurrentServo].Actual)
+        {
+          Servos.setPWM(CurrentServo, 4096, 0);
+          delay(1000);
+          Servos.setPWM(CurrentServo, 0, 4096);
+          delay(70);
+
+          if (servoDetails[CurrentServo].Speed > 0)
+          {
+            if (newServoDetails[CurrentServo].Target == -1)
+            {
+              if (servoDetails[CurrentServo].Target == 0)
+              {
+                servoDetails[CurrentServo].Target = servoDetails[CurrentServo].OldTarget;
+                servoDetails[CurrentServo].Actual = -1;
+                servoDetails[CurrentServo].Delay = (millis() + (servoDetails[CurrentServo].Speed * 100L));
+//                DEBUG_println(servoDetails[CurrentServo].Delay);
+//                DEBUG_print("Swapping ");DEBUG_print(servoDetails[CurrentServo].Target);DEBUG_print(" and ");DEBUG_println(servoDetails[CurrentServo].Actual);
+              }
+              else
+              {
+                servoDetails[CurrentServo].Actual = -1;
+                servoDetails[CurrentServo].Target = 0;
+                servoDetails[CurrentServo].Delay = (millis() + (servoDetails[CurrentServo].Speed * 100L)) - (servoDetails[CurrentServo].OldTarget * 60L);
+//                DEBUG_println(servoDetails[CurrentServo].Delay);
+//                DEBUG_print("Swapping ");DEBUG_print(servoDetails[CurrentServo].Target);DEBUG_print(" and ");DEBUG_println(servoDetails[CurrentServo].Actual);
+              }
+            }
+            else
+            {
+              servoDetails[CurrentServo].Target = servoDetails[CurrentServo].Actual;
+              servoDetails[CurrentServo].Delay = 0;
+            }
+            
+            servoDetails[CurrentServo].NextBounceStep = -1;
+          }
+          else
+          {
+            servoDetails[CurrentServo].Actual = servoDetails[CurrentServo].Target;
+            servoDetails[CurrentServo].NextBounceStep = -1;
+          }
+        }
+      }
+    }
+*/    
     if (servoDetails[CurrentServo].AccessoryType == 'P' && !SolenoidPowered)
     {
       if (millis() >= nextPulseTime && servoDetails[CurrentServo].Target != -1)
@@ -869,6 +995,12 @@ int8_t   i;
           servoDetails[CurrentServo].NextBounceStep = -1;
           servoDetails[CurrentServo].NextWaveStep = -1;
         }
+//        else
+//        {
+//          servoDetails[CurrentServo].Delay = millis() + (servoDetails[CurrentServo].PulseDuration * 10L);
+//          servoDetails[CurrentServo].Target = 0;
+//          servoDetails[CurrentServo].Actual = 4095;
+//        }        
       }
     }
 
@@ -884,6 +1016,7 @@ int8_t   i;
           servoDetails[CurrentServo].NextBounceStep = -1;
           servoDetails[CurrentServo].Moved = false;
           ServoWriteDefaultsFile();
+          
         }
 
         if (servoDetails[CurrentServo].Direction == '1')
@@ -917,17 +1050,11 @@ int8_t   i;
         servoDetails[CurrentServo].ServoEndMessage[0] = 0;
       }
 
-//      if (servoDetails[CurrentServo].NextWaveStep == -1)
-//      {
-//        ServoWriteDefaultsFile();
-//        servoDetails[CurrentServo].NextWaveStep = -2;
-//      }
-
       // if there is a new target to move to, then copy it over
       if (newServoDetails[CurrentServo].Target != -1)
       {
         if ((newServoDetails[CurrentServo].Target != servoDetails[CurrentServo].Actual) || newServoDetails[CurrentServo].AccessoryType == 'R')
-        {
+        {          
           servoDetails[CurrentServo].Target = newServoDetails[CurrentServo].Target;
           servoDetails[CurrentServo].OldTarget = newServoDetails[CurrentServo].Target;
           servoDetails[CurrentServo].Delay = newServoDetails[CurrentServo].Delay;
@@ -942,11 +1069,15 @@ int8_t   i;
           servoDetails[CurrentServo].AccessoryType = newServoDetails[CurrentServo].AccessoryType;
           servoDetails[CurrentServo].Direction = newServoDetails[CurrentServo].Direction;
   
+//          if (servoDetails[CurrentServo].AccessoryType == 'S' || servoDetails[CurrentServo].AccessoryType == 'H')
           if (servoDetails[CurrentServo].AccessoryType == 'S')
             servoDetails[CurrentServo].Speed = newServoDetails[CurrentServo].Speed;
           else
             servoDetails[CurrentServo].Speed = 0;
-
+/*
+          if (servoDetails[CurrentServo].AccessoryType == 'H')
+            servoDetails[CurrentServo].Actual = -1;
+*/
           for (i=0; i<4; i++)
             servoDetails[CurrentServo].ServoStartMessage[i] = newServoDetails[CurrentServo].ServoStartMessage[i];
   
@@ -956,7 +1087,7 @@ int8_t   i;
           if (newServoDetails[CurrentServo].Delay != 0)
           {
             servoDetails[CurrentServo].Delay = newServoDetails[CurrentServo].Delay;
-//            DEBUG_println(servoDetails[CurrentServo].Delay);
+            DEBUG_println(servoDetails[CurrentServo].Delay);
           }
           else
             servoDetails[CurrentServo].Delay = 0L;

@@ -1,6 +1,6 @@
 /***************************************************
 # Required Notice: Copyright (C) 2024 Martin Randall - All Rights Reserved
-#
+# 
 # You may use, distribute and modify this code under the
 # terms of the PolyForm Noncommercial 1.0.0 license.
 #
@@ -24,6 +24,7 @@
 #define LIGHTINGCONTROLLER    12
 #define DCCCONTROLLER         14
 #define IRINPUT               15
+#define OLEDCLOCK             17
 // DON'T USE 0 or 16!
 
 #ifdef ESP32
@@ -32,8 +33,9 @@
 //  #error TARGET IS ESP8266
 #endif
 
-#define MAJOR_VERSION         "2"
-#define MINOR_VERSION         "00"
+
+#define MAJOR_VERSION         "0"
+#define MINOR_VERSION         "22"
 
 #define HARDWARE_REVISION     "V1"
 
@@ -58,7 +60,6 @@
 
 char INITIALISE_STRING[]="INIT";
 
-// uncomment the line below to enable debug output
 #define DEBUG
 
 #ifdef DEBUG
@@ -70,18 +71,26 @@ char INITIALISE_STRING[]="INIT";
 #endif
 
 #include <ESP8266WiFi.h>
+//#include <ESP32WiFi.h>
 #include <WiFiClient.h>
+//#include <FS.h>
 #include <LittleFS.h>
 #include <PubSubClient.h>
+// #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <Wire.h>
 #include <Adafruit_MCP23017.h>
 #include <Adafruit_LEDBackpack.h>
+#include <LedControl.h>
 #include <Adafruit_PWMServoDriver.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include <TM1637Display.h>
 #include <Adafruit_MotorShield.h>
 #include <AccelStepper.h>
+#include <SPI.h>
+// #include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
 /********** webserver html 'files'***************/
 #include "index.h"
@@ -100,6 +109,7 @@ ESP8266HTTPUpdateServer httpUpdater;
   PubSubClient MQTTclient;
 #endif
 
+//bool        InitialOutput;
 bool        InsideMessage;
 bool        ResetPressed;
 int         InCount;
@@ -121,6 +131,10 @@ char        ipAddress[20];
 int         OperatingMode;
 long        nextLEDFlash;
 int         flashstate = 0;
+//long        lastMsg = 0;
+//long        lastHeapPrint = 0;
+//char        msg[50];
+//int         value = 0;
 char        uniqueID[7];
 unsigned char ReceiveQueue[RECEIVEQUEUESIZE];
 int         ReceiveQueueHead = 0;
@@ -140,6 +154,7 @@ long        last_message_millis = 0L;
 int         hours = 0;
 int         minutes = 0;
 int         seconds = 0;
+int         secondCount = 0;
 byte        RxQueue[MAX_QUEUE];
 int         RxQueuePointer = 0;
 bool        flashing;
@@ -147,7 +162,9 @@ bool        colon;
 bool        Running;
 bool        ampm;
 bool        Clock24;
+int         secondCounter;
 int         Brightness;
+//char        tempString[1024];
 uint8_t     data[5];
 
 char serverIndex[512];
@@ -155,16 +172,17 @@ char firstServerIndex[]  = "<html><body><h2>Update ";
 char secondServerIndex[] = "</h2>Choose a new firmware file:<br><br><form method='POST' action='' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form></body></html>";
 char MysuccessResponse[] = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Update Success! Rebooting...\nPlease close this window";
 
-#include "Modulus_core.h"
-#include "Servo.h"
-#include "ManualInput.h"
-#include "MimicDisplay.h"
+#include "mudular_core.h"
+#include "servo.h"
+#include "manualinput.h"
+#include "mimicdisplay.h"
 #include "SecondaryClock.h"
-#include "MatrixClock.h"
-#include "Lighting.h"
-#include "Sound.h"
-// #include "StepperControl.h"
+#include "matrix_clock.h"
+#include "lighting.h"
+#include "sound_dfplayer.h"
+#include "StepperControl.h"
 #include "AnalogClock.h"
+#include "OLEDClock.h"
 #include "DCC.h"
 
 void setup()
@@ -175,19 +193,15 @@ int i;
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
   ResetPressed = false;
+  Serial.begin(115200);
 
+//  LittleFS.begin();
   LittleFS.begin();
   delay(100);
 
   WiFi.setOutputPower(10);
 
-  // delay(1000);
-
-  Serial.begin(115200);
-  while (!Serial)
-    ;
-    
-  Serial.println("Starting...");
+  delay(1000);
 
   File f = LittleFS.open("/module.conf", "r");
   DEBUG_print("Reset = ");DEBUG_println(digitalRead(RESET_CONFIG));
@@ -247,6 +261,7 @@ int i;
       case LARGESECONDARYCLOCK:
       case SECONDARYCLOCK:
         #ifdef _SECONDARY_CLOCK
+//        if (OperatingMode == NORMAL)
           secondaryClockSetup(boardType);
         #endif
         initialiseComms();
@@ -260,25 +275,18 @@ int i;
         initialiseComms();
         break;
 
-      case PRIMARYCLOCK:
-        #ifdef _PRIMARY_CLOCK
-          primaryClockSetup();
-        #endif
-        initialiseComms();
-        delay(100);
-        break;
-
       case MANUALINPUT:
         initialiseComms();
         delay(100);
         #ifdef _MANUAL_INPUT
+//        if (OperatingMode == NORMAL)
           manualInputSetup();
         #endif
         break;
 
       case SERVO:
         #ifdef _SERVO
-          servoSetup();
+        servoSetup();
         #endif
         initialiseComms();
         break;
@@ -297,6 +305,20 @@ int i;
         #endif
         break;
 
+      case RELAY:
+        #ifdef _RELAY
+          relaySetup();
+        #endif
+        initialiseComms();
+        break;
+        
+      case OLEDCLOCK:
+        #ifdef _OLEDCLOCK
+          oledclockSetup();
+        #endif
+        initialiseComms();
+        break;
+        
       case ANALOGCLOCK:
         #ifdef _ANALOG_CLOCK
         analogClockSetup();
@@ -305,14 +327,16 @@ int i;
         break;
 
       case SOUNDMODULE:
-        initialiseComms();
         #ifdef _SOUND_PLAYER
+//        if (OperatingMode == NORMAL)
           soundSetup();
         #endif
+        initialiseComms();
         break;
 
       case STEPPERMOTOR:
         #ifdef _STEPPER_CONTROL
+//        if (OperatingMode == NORMAL)
           stepperSetup();
         #endif
         initialiseComms();
@@ -322,10 +346,19 @@ int i;
         initialiseComms();
         delay(100);
         #ifdef _DCC_CONTROL
+//        if (OperatingMode == NORMAL)
           DCCSetup();
         #endif
         break;
 
+      case IRINPUT:
+        initialiseComms();
+        delay(100);
+        #ifdef _IR_INPUT
+//        if (OperatingMode == NORMAL)
+          IRSetup();
+        #endif
+        break;
     }
 
     ReadConfigFileTriggers();
@@ -335,7 +368,6 @@ int i;
       case LARGESECONDARYCLOCK:
       case SECONDARYCLOCK:
       case MATRIXCLOCK:
-      case PRIMARYCLOCK:
       case MANUALINPUT:
       case ANALOGCLOCK:
       case DCCCONTROLLER:
@@ -405,6 +437,18 @@ void ReadSerial()
       #endif
       break;
 
+    case RELAY:
+      #ifdef _RELAY
+      relaySerial();
+      #endif
+      break;
+
+    case OLEDCLOCK:
+      #ifdef _OLEDCLOCK
+      oledclockSerial();
+      #endif
+      break;
+
     case ANALOGCLOCK:
       #ifdef _ANALOG_CLOCK
       analogClockSerial();
@@ -426,6 +470,12 @@ void ReadSerial()
     case DCCCONTROLLER:
       #ifdef _DCC_CONTROL
       DCCSerial();
+      #endif
+      break;
+
+    case IRINPUT:
+      #ifdef _IR_INPUT
+      IRSerial();
       #endif
       break;
 
@@ -464,6 +514,7 @@ char nextChar;
   
   if (OperatingMode == SETUP)
   {
+//    dnsServer.processNextRequest();
     webServer.handleClient();
     if (millis() > nextLEDFlash)
     {
@@ -500,6 +551,7 @@ char nextChar;
         else
         {
           if (!MQTTclient.connected())
+    //      if (false) 
           {
             DEBUG_println("mqtt NOT connected");
             digitalWrite(LED_BUILTIN, LOW);
@@ -534,7 +586,31 @@ char nextChar;
     }
  
     // and now do normal processing!
-    ReadSerial();
+/*    if (boardType == SERVO)
+    {
+      AllStill = true;
+      for (i=0; i<MAXSERVOS && AllStill; i++)
+      {
+        if (servoDetails[i].Moved)
+        {
+          AllStill = false;
+        }
+      }
+      if (AllStill)
+      {
+        ReadSerial();
+      }
+    }
+    else */
+      ReadSerial();
+
+/*
+    if (millis() - lastHeapPrint > 1000L)
+    {
+      lastHeapPrint = millis();
+      ESP.getFreeHeap();
+    }
+*/
 
     switch (boardType)
     {
@@ -575,6 +651,18 @@ char nextChar;
         #endif
         break;
 
+      case RELAY:
+        #ifdef _RELAY
+        relayLoop();
+        #endif
+        break;
+
+      case OLEDCLOCK:
+        #ifdef _OLEDCLOCK
+        oledclockLoop();
+        #endif
+        break;
+        
       case ANALOGCLOCK:
         #ifdef _ANALOG_CLOCK
         analogClockLoop();
@@ -596,6 +684,12 @@ char nextChar;
       case DCCCONTROLLER:
         #ifdef _DCC_CONTROL
         DCCLoop();
+        #endif
+        break;          
+
+      case IRINPUT:
+        #ifdef _IR_INPUT
+        IRLoop();
         #endif
         break;          
     }

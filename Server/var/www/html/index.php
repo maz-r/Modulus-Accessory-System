@@ -38,6 +38,7 @@ client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 client.connect({onSuccess:onConnect});
 
+
 var menuclockcanvas;
 var menuclockctx;
 var menuclockradius;
@@ -63,9 +64,6 @@ var editEventObject;
 var editServoEventObject;
 var editServoRow;
 var editServoBoard;
-var editSignalHeadEventObject;
-var editSignalHeadRow;
-var editSignalHeadBoard;
 var editLightingGroupObject;
 var editLabelEventObject;
 var editLabelEventRow;
@@ -94,7 +92,8 @@ var moduleTypeNames = [
   "",
   "",
   "",
-  "Internal Sound Module"
+  "Internal Sound Module",
+  "OLED Clock"
 ];
 
 var fieldRange = [
@@ -111,7 +110,7 @@ var fieldRange = [
    [["Channel No"],["50px"],['S']],
    [["Delay"],["50px"],['I'],[0],[999],[0]],
    [["Event Before"],["85px"],['D']],
-   [["Type/Action"],["115px"],['Y'],[1],[180],[90]],
+   [["Type/Action"],["100px"],['Y'],[1],[180],[90]],
    [["Speed"],["50px"],['I'],[0],[200],[8]],
    [["Event After"],["85px"],['D']],
    [["Profile"],["90px"],['P']],
@@ -161,7 +160,7 @@ var fieldRange = [
    [[""],["0px"],['U'],[0],[15],[0],[0]],
    [["Effect"],["85px"],['N']],
    [["Delay"],["50px"],['I'],[0],[999],[0]],
-   [["High Brightness"],["95px"],['@'],[0],[100],[50],[0]],
+   [["High Brightness"],["85px"],['I'],[0],[100],[50],[0]],
    [["Speed Up"],["55px"],['I'],[0],[100],[50],[0]],
    [["Time High"],["60px"],['I'],[0],[200],[50],[0]],
    [["Low Brightness"],["85px"],['I'],[0],[100],[50],[0]],
@@ -730,7 +729,7 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
           break;
 
         case 'N':
-          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="LightingEffect'+uniqueID+rowNumber+'" onchange="ConfigLightingTypeChange('+boardType+','+uniqueID+rowNumber+');"><option value=\'S\'>Direct</option><option value=\'F\'>Flicker</option><option value=\'B\'>Blink</option><option value=\'R\'>Arc</option><option value=\'Q\'>Cycle</option><option value=\'H\'>Signal Head</option><option value=\'P\'>Proportional</option></select>';
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="LightingEffect'+uniqueID+rowNumber+'" onchange="ConfigLightingTypeChange('+boardType+','+uniqueID+rowNumber+');"><option value=\'S\'>Direct</option><option value=\'F\'>Flicker</option><option value=\'R\'>Arc</option><option value=\'Q\'>Cycle</option><option value=\'P\'>Proportional</option></select>';
           if (typeof(ConfigDetails[fieldIndex]) == "undefined")
           {
             ConfigDetails[fieldIndex] = 0;
@@ -758,7 +757,25 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
           newCell.innerHTML = '<select disabled style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="StepperNumber'+uniqueID+rowNumber+'"><option value="0">0</option></select>';
           fieldIndex++;
           break;
+/*
+        case 'R':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="RelayNumber'+uniqueID+rowNumber+'"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select>';
+          var option = $('#RelayNumber'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
 
+        case 'A':
+          newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="RelayAction'+uniqueID+rowNumber+'" onchange="ConfigRelayChange('+boardType+','+uniqueID+rowNumber+');";><option value=0>Off</option><option value=1>On</option><option value="P">Pulse</option><option value="T">Toggle</option></select>';
+          if (typeof(ConfigDetails[fieldIndex]) == "undefined")
+          {
+            ConfigDetails[fieldIndex] = 0;
+          }
+          var option = $('#RelayAction'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
+          option[0].selected = true;
+          fieldIndex++;
+          break;
+*/
         case 'M':
           newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" id="ConfigMimicTransitionType'+uniqueID+rowNumber+'" onchange="ConfigMimicRangeChange(5, '+uniqueID+rowNumber+');" name="ConfigMimicTransitionType'+uniqueID+rowNumber+'"><option value="S">Direct</option><option value="F">Flash</option><option value="M">Fade</option><option value="C">Cycle</option><option value="D">Duplicate</option><option value="Y">Duplicate if EQUAL</option><option value="N">Duplicate if NOT equal</option></select>';
           var option = $('#ConfigMimicTransitionType'+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex] +'"]');
@@ -775,7 +792,7 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
 
         case 'C':
           var ConfigString = "";
-          newCell.innerHTML = "<button "+disabledStr+" class='config_button' name='"+uniqueID+rowNumber+"' id='editColour_button"+uniqueID+rowNumber+"-"+i+"' onclick='openColourPopup(this,"+rowNumber+", true);' value='" + ConfigDetails[i] + "'></button>";
+          newCell.innerHTML = "<button "+disabledStr+" class='config_button' name='"+uniqueID+rowNumber+"' id='editColour_button"+uniqueID+rowNumber+"-"+i+"' onclick='openColourPopup(this, true);' value='" + ConfigDetails[i] + "'></button>";
           newCell.firstChild.value = ConfigDetails[fieldIndex];
 
           if (ConfigDetails[fieldIndex] == "::")
@@ -788,7 +805,7 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
 
         case '2':
           var ConfigString = "";
-          newCell.innerHTML = "<button "+disabledStr+" class='config_button' name='"+uniqueID+rowNumber+"' id='editColour_button"+uniqueID+rowNumber+"-"+i+"' onclick='openColourPopup(this,"+rowNumber+", false);' value=''>";
+          newCell.innerHTML = "<button "+disabledStr+" class='config_button' name='"+uniqueID+rowNumber+"' id='editColour_button"+uniqueID+rowNumber+"-"+i+"' onclick='openColourPopup(this, false);' value=''>";
           newCell.firstChild.value = ConfigDetails[fieldIndex];
           setColourButton(newCell.firstChild, false);
           fieldIndex++;
@@ -883,40 +900,6 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
           fieldIndex++;
           break;
 
-        case '@':
-          newCell.innerHTML = '<button '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openLightingPopup(this,'+boardType+','+uniqueID+rowNumber+', '+fieldRange[boardType][i][3]+','+fieldRange[boardType][i][4]+',\''+fieldRange[boardType][i][0]+'\');" value=""></button>';
-          if (ConfigDetails[fieldIndex] === undefined)
-            newCell.firstChild.value = fieldRange[boardType][i][5];
-          else
-          {
-            newCell.firstChild.value = ConfigDetails[fieldIndex];
-            newCell.firstChild.innerHTML = DecodeSignalHead(ConfigDetails[fieldIndex]);
-          }
-          fieldIndex++;
-
-//          var firstSpan =  '<span style="width:'+fieldRange[boardType][i][1][0]+'" id="lighting_button_'+boardType+'_'+uniqueID+rowNumber+'-1"><input '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'" onclick="openIntegerPopup(this, '+fieldRange[boardType][i][3]+','+fieldRange[boardType][i][4]+',\''+fieldRange[boardType][i][0]+'\')"></span>';
-//          var secondSpan = '<span style="width:'+fieldRange[boardType][i][1][0]+'" id="lighting_button_'+boardType+'_'+uniqueID+rowNumber+'-2"><input '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'_2" onclick="openSignalHeadPopup(this)" value="">'+DecodeSignalHead(ConfigDetails[fieldIndex].substring(1))+'</span>';
-//          var secondSpan = '<span style="width:'+fieldRange[boardType][i][1][0]+'" id="lighting_button_'+boardType+'_'+uniqueID+rowNumber+'-2"><input '+disabledStr+' class="config_button" id="default_button_'+boardType+'_'+uniqueID+rowNumber+'-'+i+'_2" onclick="openSignalHeadPopup(this)" value=""></span>';
-//          var secondSpanContent = DecodeSignalHead(ConfigDetails[fieldIndex].substring(1));
-//          var newCell2 = row.insertCell();
-//          newCell.innerHTML = firstSpan;
-//          newCell2.innerHTML = secondSpan;
-//          var signalHeadButton1 = document.getElementById("lighting_button_"+boardType+"_"+uniqueID+rowNumber+"-1");
-//          var signalHeadButton2 = document.getElementById("lighting_button_"+boardType+"_"+uniqueID+rowNumber+"-2");
-//          if (ConfigDetails[fieldIndex] === undefined)
-//          {
-//            newCell.firstChild.value = fieldRange[boardType][i][5];
-//            newCell.firstChild.innerHTML = secondSpanContent;
-//          }
-//          else
-//          {
-//            newCell.firstChild.value = ConfigDetails[fieldIndex];
-//            newCell2.firstChild.innerHTML = secondSpanContent;
-//          signalHeadButton.firstChild.value += secondSpanContent;
-//          }
-//          fieldIndex++;
-          break;
-
         case 'Q':
           newCell.innerHTML = '<select '+disabledStr+' style="height:26px;width:'+fieldRange[boardType][i][1][0]+'" onchange="ConfigSoundChange('+boardType+','+uniqueID+rowNumber+');" id="soundQueueType_'+boardType+"_"+uniqueID+rowNumber+'"><option value="N">Next</option><option value="Q">Queue</option><option value="I">Immediate</option><option value="R">Random</option><option value="=">Set variable</select>';
           if (typeof(ConfigDetails[fieldIndex]) == "undefined")
@@ -951,6 +934,7 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
             newCell.firstChild.value = ConfigDetails[fieldIndex];
             newCell.firstChild.innerHTML = generateSoundText(ConfigDetails[fieldIndex]);
           }
+          // fieldIndex++;
           break;
 
         case 'H':
@@ -962,6 +946,7 @@ function populateRow(rowNumber, boardType, configString, usage, tableToPopulate)
           }
           else
           {
+            // document.getElementById("Variable"+uniqueID+rowNumber).value = "0";
             var option = $('#Variable_'+boardType+"_"+uniqueID+rowNumber).children('option[value="'+ ConfigDetails[fieldIndex-1] +'"]');
             var qType = document.getElementById('soundQueueType_'+boardType+"_"+uniqueID+rowNumber).value;
             if (qType == '=' && option.length > 0)
@@ -1141,12 +1126,12 @@ var Processed;
       Processed = true;
       if (ConfigDetails[1] == "16")
       {
-          for (i=0; i< 6; i++)
-          {
-            Volumeid="Volume" + i + "_16";
-            VolumeElement = document.getElementById(Volumeid);
-            VolumeElement.value = parseInt(ConfigDetails[i+2]);
-          }
+        for (i=0; i< 6; i++)
+        {
+          Volumeid="Volume" + i + "_16";
+          VolumeElement = document.getElementById(Volumeid);
+          VolumeElement.value = parseInt(ConfigDetails[i+2]);
+        }
       }
     }
 
@@ -1423,6 +1408,24 @@ var Processed;
 
             var option = $('#matrixAMPMstyle').children('option[value="'+ ConfigDetails[4] +'"]');
             option[0].selected = true;
+            break;
+
+          case "17":
+            document.getElementById('oledBrightness').value = ConfigDetails[1];
+
+            if (ConfigDetails[2] == 'Y')
+              document.getElementById("oledInverted").checked = true;
+            else
+              document.getElementById("oledInverted").checked = false;
+
+            var option = $('#oledClockStyle').children('option[value="'+ ConfigDetails[3] +'"]');
+            option[0].selected = true;
+
+            document.getElementById('oledMorningText').value = ConfigDetails[4];
+            document.getElementById('oledAfternoonText').value = ConfigDetails[5];
+
+            document.getElementById("oledConfigPage").style.display = "block";
+
             break;
 
           case "99":
@@ -1710,25 +1713,22 @@ var Processed;
         var elementID = "Sensors";
         elementID += moduleName;
 
-        if (ConfigDetails[0] != 17 && ConfigDetails[0] != 11)
+        var found = false;
+        var x = document.getElementById("Sensors");
+
+        for (var i=0; i<x.length; i++)
         {
-          var found = false;
+          if (x.options[i].label == moduleName)
+            found = true;
+        }
+
+        if (!found)
+        {
           var x = document.getElementById("Sensors");
-
-          for (var i=0; i<x.length; i++)
-          {
-            if (x.options[i].label == moduleName)
-              found = true;
-          }
-
-          if (!found)
-          {
-            var x = document.getElementById("Sensors");
-            var option = document.createElement("option");
-            option.text = moduleName;
-            option.value = ConfigDetails[0];
-            x.add(option);
-          }
+          var option = document.createElement("option");
+          option.text = moduleName;
+          option.value = ConfigDetails[0];
+          x.add(option);
         }
 
     	  var elementExists = document.getElementById(elementID);
@@ -1754,16 +1754,9 @@ var Processed;
     			tempString += "</td>";
     			tempString += "<td class='deviceTD'>"+ConfigDetails[1]+"</td>";
     			tempString += "<td class='deviceTD'>"+ConfigDetails[2]+"."+ConfigDetails[3]+"</td>";
-    			if (ConfigDetails[0] != 17 && ConfigDetails[0] != 11)
-    			{
-      			tempString += '<td class="deviceTD"><button onclick="switchConfigurePage(\'';
-      			tempString += moduleName;
-      			tempString += '\');"><span style="font-family:icons;">&#xefe2;</span> Configure</button></td>';
-          }
-          else
-    			{
-      			tempString += '<td class="deviceTD"></td>';
-          }
+          tempString += '<td class="deviceTD"><button onclick="switchConfigurePage(\'';
+          tempString += moduleName;
+          tempString += '\');"><span style="font-family:icons;">&#xefe2;</span> Configure</button></td>';
 
     			if (ConfigDetails[1] != "")
     			{
@@ -1816,16 +1809,10 @@ var Processed;
     			tempString += "<td class='deviceTD'>"+ConfigDetails[1]+"</td>";
     			tempString += "<td class='deviceTD'>"+ConfigDetails[2]+"."+ConfigDetails[3]+"</td>";
 
-    			if (ConfigDetails[0] != 17 && ConfigDetails[0] != 11)
-    			{
-      			tempString += '<td class="deviceTD"><button onclick="switchConfigurePage(\'';
-       			tempString += moduleName;
-    	  		tempString += '\');"><span style="font-family:icons;">&#xefe2;</span> Configure</button></td>';
-          }
-          else
-    			{
-      			tempString += '<td class="deviceTD"></td>';
-          }
+          tempString += '<td class="deviceTD"><button onclick="switchConfigurePage(\'';
+          tempString += moduleName;
+          tempString += '\');"><span style="font-family:icons;">&#xefe2;</span> Configure</button></td>';
+
     			if (ConfigDetails[1] != "")
     			{
     			  if ("<?php echo $_SERVER['SERVER_ADDR'] ?>" == "192.168.0.1" && ConfigDetails[4] != "0.0.0.0")
@@ -1842,7 +1829,7 @@ var Processed;
           {
             tempString += '<td class="deviceTD"><button onclick="identifyModule(\'';
             tempString += moduleName;
-            tempString += '\');"><span style="font-family:icons;">&#xefca;</span> Identify</button></td>';          
+            tempString += '\');"><span style="font-family:icons;">&#xef1f;</span> Identify</button></td>';          
           }
           
     			tempString += "</tr>";
@@ -2711,10 +2698,30 @@ function saveEventPopup()
       newValue += newValue2;
       newValue += ":";
 
+/*
+      var hiddenValueA = 128;
+      hiddenValueA |= (parseInt(newValue.substr(0,1)) << 4);
+      hiddenValueA |= parseInt(newValue.substr(1,1));
+
+      var hiddenValueB = 128;
+      hiddenValueB |= (parseInt(newValue.substr(4,1)) << 4);
+      hiddenValueB |= parseInt(newValue.substr(5,1));
+      var hiddenValue = String.fromCharCode(hiddenValueA, hiddenValueB);
+
+      e = document.getElementById("EventRangeMinuteTens");
+      hiddenValue += e.options[e.selectedIndex].value;
+      newValue += e.options[e.selectedIndex].value;
+
+      e = document.getElementById("EventRangeMinuteUnits");
+      hiddenValue += e.options[e.selectedIndex].value;
+      newValue += e.options[e.selectedIndex].value;
+*/
       var hiddenValueA = "a".charCodeAt(0);
       hiddenValueA += parseInt(newValue.substr(0,2));
+//      hiddenValueA |= parseInt(newValue.substr(1,1));
 
       var hiddenValueB = "a".charCodeAt(0);
+//      hiddenValueB |= (parseInt(newValue.substr(4,1)) << 4);
       hiddenValueB += parseInt(newValue.substr(4,2));
       var hiddenValue = String.fromCharCode(hiddenValueA, hiddenValueB);
 
@@ -2785,89 +2792,57 @@ function openTimePopup(x)
 function ConfigLightingTypeChange(boardType, rowNumber)
 {
   var selectedVal = document.getElementById("LightingEffect"+rowNumber).value;
-  
-  if (selectedVal == 'H')
+  switch (selectedVal)
   {
-    for (var i=6; i<=12; i++)
-    {
-      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-"+i).style.visibility = "hidden";
-    }
+    case 'S':
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.display = "inline";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-9").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "hidden";
+      break;
 
-    var thisObject = document.getElementById("default_button_"+boardType+"_"+rowNumber+"-5");
-    var thisValue = thisObject.value.substr(0,1);
-   
-    if (thisValue == 'F')
+    case 'F':
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-9").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "visible";
+      break;
+
+    case 'R':
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.visibility = "hidden";
       document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-9").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "visible";
+      break;
 
-    if (thisValue != 'N' && thisValue != 'F')
-    {
-      thisObject.value = "NRRRRRR";
-    }
-    newText = DecodeSignalHead(thisObject.value);
-    thisObject.innerHTML = newText;
-  }
-  else
-  {
-    var thisObject = document.getElementById("default_button_"+boardType+"_"+rowNumber+"-5");
-    var thisValue = thisObject.value.substr(0,1);
-    if (thisValue == 'N' || thisValue == 'F')
-    {
-      thisObject.value = 0;
-    }
-    newText = DecodeSignalHead(thisObject.value);
-    thisObject.innerHTML = newText;
+    case 'Q':
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-9").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "visible";
+      break;
 
-    for (var i=6; i<=12; i++)
-    {
-      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-"+i).style.visibility = "hidden";
-    }
-
-    switch (selectedVal)
-    {
-      case 'S':
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.visibility = "visible";
-        break;
-
-      case 'F':
-        // document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "visible";
-        // document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "visible";
-        break;
-
-      case 'B':
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "visible";
-        // document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "visible";
-        // document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "visible";
-        break;
-
-      case 'R':
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "visible";
-        break;
-
-      case 'Q':
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-9").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "visible";
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "visible";
-        break;
-
-      case 'P':
-        document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
-        break;
-    }
+    case 'P':
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-6").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-7").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-8").style.visibility = "visible";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-9").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-10").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-11").style.visibility = "hidden";
+      document.getElementById("default_button_"+boardType+"_"+rowNumber+"-12").style.visibility = "hidden";
+      break;
   }
 }
 
@@ -3050,11 +3025,10 @@ function ConfigMimicRangeChange(boardType, x)
   return;
 }
 
-function openColourPopup(x, row, useCurrent)
+function openColourPopup(x, useCurrent)
 {
   document.getElementById("editColourPopup").style.display = "block";
   editEventObject = x;
-  mimicLEDRange = document.getElementById("editMimicList_button"+row).value;
 
   var colourValues = x.value.split(":");
   if (colourValues[0].length == 0)
@@ -3109,9 +3083,9 @@ function setColourButton(button, useCurrent)
   else
   {
     var colourValues = button.value.split(":");
-    var red =   mapVal(0, 64, 0, 255, parseInt(colourValues[0]));
-  	var green = mapVal(0, 64, 0, 255, parseInt(colourValues[1]));
-  	var blue =  mapVal(0, 64, 0, 255, parseInt(colourValues[2]));
+    var red = parseInt(mapVal(0, 128, 0, 255, colourValues[0]));
+  	var green = parseInt(mapVal(0, 128, 0, 255, colourValues[1]));
+  	var blue = parseInt(mapVal(0, 128, 0, 255, colourValues[2]));
 
   	var newColour = "rgb("+red+","+green+","+blue+")";
   	button.style.background = newColour;
@@ -3328,6 +3302,26 @@ function openServoPopup(x, board, row, heading)
       x.checked = true;
       break;
 
+    case 'H':
+      var x = document.getElementById("_SIGNAL_HEAD");
+      x.checked = true;
+//      var servoVal = parseInt(thisValue);
+//      if (servoVal > 100)
+//      {
+//        servoVal = servoVal - 100;
+//        document.getElementById("popupSignalHeadFlashing").checked = true;
+//      }
+//      else
+        document.getElementById("popupSignalHeadFlashing").checked = false;
+
+      for (i=0; i<6; i++)
+      {
+        var servoValx = thisValue.substr(i,1);
+  	    var option = $('#popupSignalHeadPattern_'+i).children('option[value="'+servoValx+'"]');
+	      option[0].selected = true;
+      }
+      break;
+
     case 'P':
       var x = document.getElementById("_SOLENOID");
       x.checked = true;
@@ -3391,6 +3385,10 @@ function changeServoPopupType(x)
       Servo.style.display = 'block';
       break;
 
+    case 'H':
+      Signal.style.display = 'block';
+      break;
+
     case 'P':
       Solenoid.style.display = 'block';
       break;
@@ -3438,130 +3436,6 @@ function showRelayPulseTime()
   }
 }
 
-function openLightingPopup(x, board, row, min, max, heading)
-{
-  lightType = document.getElementById("LightingEffect"+row).value;
-
-  if (lightType == 'H')
-  {
-    var popupbox = document.getElementById("editSignalHeadPopup");
-    popupbox.style.display = "block";
-    editSignalHeadEventObject = x;
-    editSignalHeadEventBoard = board;
-    editSignalHeadEventRow = row;
-
-    var thisValue = x.value.substring(1);
-    var thisType = x.value.substring(0,1);
-
-    if (thisType == 'N' || thisType == 'F')
-    {
-      if (thisType == 'N')
-        document.getElementById("popupSignalHeadFlashing").checked = false;
-      else
-        document.getElementById("popupSignalHeadFlashing").checked = true;
-
-      for (i=0; i<6; i++)
-      {
-        var signalValx = thisValue.substr(i, 1);
-        var option = $('#popupSignalHeadPattern_'+i).children('option[value="'+signalValx+'"]');
-        option[0].selected = true;
-      }
-    }
-    else
-    {
-      document.getElementById("popupSignalHeadFlashing").checked = false;
-      
-      var servoValx = 'R';
-      for (i=0; i<6; i++)
-      {
-        var option = $('#popupSignalHeadPattern_'+i).children('option[value="'+servoValx+'"]');
-        option[0].selected = true;
-      }
-    } 
-  }
-  else
-  {
-    openIntegerPopup(x, min, max, heading)
-  }
-}
-
-function saveSignalHeadPopup()
-{
-var newValue = 0;
-var newText = "";
-
-  newValue = "";
-  
-  if (document.getElementById("popupSignalHeadFlashing").checked)
-    newValue = "F";
-  else
-    newValue = "N";
-
-  if (newValue == 'F')
-    document.getElementById("default_button_"+editSignalHeadEventBoard+"_"+editSignalHeadEventRow+"-7").style.visibility = "visible";
-  else
-    document.getElementById("default_button_"+editSignalHeadEventBoard+"_"+editSignalHeadEventRow+"-7").style.visibility = "hidden";
-
-  for (i=0; i<6; i++)
-  {
-    var e = document.getElementById("popupSignalHeadPattern_"+i);
-    newValue += e.options[e.selectedIndex].value;
-  }
-
-  editSignalHeadEventObject.value = newValue;
-  newText = DecodeSignalHead(newValue);
-  editSignalHeadEventObject.innerHTML = newText;
-
-  closeSignalHeadPopup();
-}
-
-function closeSignalHeadPopup()
-{
-  document.getElementById("editSignalHeadPopup").style.display = "none";
-}
-
-function DecodeSignalHead(newValue)
-{
-var returnVal;
-  
-  if (newValue.substr(0,1) == 'N' || newValue.substr(0,1) == 'F')
-  {
-//    var returnVal = "<span style='font-family:icons;'>";
-
-//    returnVal = returnVal + "&#xf016;</span> ";
-    returnVal = "<span style='font-family:typicons;'>";
-  
-    // flashing?
-    if (newValue.substr(0,1) == 'F')
-      var onChar = "&#xe000;";
-    else
-      var onChar = "&#xe0B2;";
-
-    var pos = newValue;
-
-    for (i = 1; i < 7; i++)
-    {
-      var thisChar = newValue.substr(i,1);
-      if (thisChar == 'S')
-      {
-        returnVal = returnVal + onChar;
-      }
-      else
-        if (thisChar == 'X')
-        {
-          returnVal = returnVal + "&#xe0bd;";
-        }
-        else
-          returnVal = returnVal + "&#xe0B1;";
-    }
-    returnVal = returnVal + "</span>";
-  }
-  else
-    returnVal = newValue;
-    
-  return returnVal;
-}
-
 function DecodeServoPosition(checkedVal, newValue)
 {
 var returnVal = "<span style='font-family:icons;'>";
@@ -3572,20 +3446,15 @@ var returnVal = "<span style='font-family:icons;'>";
       returnVal = returnVal + "&#xeff3;</span> ";
       returnVal = returnVal + newValue;
       break;
-/*
+
     case 'H':
       returnVal = returnVal + "&#xf016;</span> ";
       returnVal = returnVal + "<span style='font-family:typicons;'>";
-      
-      // flashing?
-      if (newValue.substr(0,1) == 'F')
-        var onChar = "&#xe000;";
-      else
-        var onChar = "&#xe0B2;";
+      var onChar = "&#xe0B2;";
 
       var pos = newValue;
 
-      for (i = 1; i < 7; i++)
+      for (i = 0; i < 6; i++)
       {
         var thisChar = newValue.substr(i,1);
         if (thisChar == 'S')
@@ -3603,7 +3472,7 @@ var returnVal = "<span style='font-family:icons;'>";
       }
       returnVal = returnVal + "</span>";
       break;
-*/
+
     case 'P':
       returnVal = returnVal + "&#xee84;</span> ";
       returnVal = returnVal + "<span style='font-family:typicons;'>";
@@ -3702,22 +3571,20 @@ var newText = "";
         newValue = document.getElementById("popupServoRange").max;
       break;
 
-/*
     case 'H':
       newValue = "";
-      
-      if (document.getElementById("popupSignalHeadFlashing").checked)
-        newValue = "F";
-      else
-        newValue = "N";
-
       for (i=0; i<6; i++)
       {
         var e = document.getElementById("popupSignalHeadPattern_"+i);
         newValue += e.options[e.selectedIndex].value;
       }
+      e = document.getElementById("popupSignalHeadFlashing");
+      if (e.checked)
+      {
+        newValue = parseInt(newValue) + 100;
+      }
       break;
-*/
+
     case 'P':
       var e = document.getElementById("popupSolenoidDirection");
       newValue = e.options[e.selectedIndex].value;
@@ -4128,7 +3995,7 @@ function initialisePage()
   var btn = document.getElementById("editEventPopup_button");
 
   var SystemName = document.getElementById("SystemName")
-  <?php  $WiFiName = exec("nmcli c show hotspot|grep wireless.ssid|tr -s ' ' ','|cut -f2 -d,"); ?>
+  <?php  $WiFiName = exec("nmcli c show --active hotspot|grep wireless.ssid|tr -s ' ' ','|cut -f2 -d,"); ?>
   SystemName.innerHTML = "<h1><?php echo $WiFiName?></h1>"
   <?php  $ShutdownEvent = exec("cat /home/sms/ShutdownEvent.cfg") ?>
   document.getElementById("ShutdownEvent").value = "<?php echo $ShutdownEvent ?>";
@@ -4587,6 +4454,31 @@ function programMatrixClockModule()
   }
 }
 
+function programOledClockModule()
+{
+	var selectedObject=document.getElementById("Sensors");
+	var moduleName = selectedObject.selectedOptions[0].text;
+  if (confirm("Select OK to send the configuration to "+moduleName+"?"))
+  {
+    var Brightness = document.getElementById("oledBrightness").value;
+    var Style = document.getElementById("oledClockStyle").value
+	  var Inverted = document.getElementById("oledInverted").checked;
+	  var morningText = document.getElementById("oledMorningText").value;
+	  var afternoonText = document.getElementById("oledAfternoonText").value;
+	  var payload = "WC" + Brightness + "," ;
+	  if (Inverted)
+		  payload += "Y";
+	  else
+		  payload += "N";
+
+	  payload += "," + Style;
+	  payload += "," + morningText;
+	  payload += "," + afternoonText;
+
+	  PublishDevices(moduleName, payload);
+  }
+}
+
 function programSoundVolume(moduleType)
 {
   if (moduleType == "09")
@@ -5027,7 +4919,6 @@ function MimicColour1Change()
   	document.getElementById("Red1Value").disabled = true;
   	document.getElementById("Green1Value").disabled = true;
   	document.getElementById("Blue1Value").disabled = true;
-  	document.getElementById("popupMimicInteractive").disabled = true;
   }
   else
   {
@@ -5040,7 +4931,6 @@ function MimicColour1Change()
   	document.getElementById("Red1Value").disabled = false;
   	document.getElementById("Green1Value").disabled = false;
   	document.getElementById("Blue1Value").disabled = false;
-  	document.getElementById("popupMimicInteractive").disabled = false;
   }
 }
 
@@ -5332,55 +5222,26 @@ function sendSearchRequest(x)
 
 function mapVal(lowermin, lowermax, uppermin, uppermax, val)
 {
-  var offset = 0;
+	var originalrange = (lowermax - lowermin);
+	var newrange = (uppermax - uppermin);
+	var offset = (val - lowermin) / originalrange;
+	offset = (offset * newrange) + uppermin;
 
-  // if it's not zero, then offset it...
-  if (val > 0)
-  {
-    val += 15;
-//    val *= 2;
-    // convert to a number between 0 and 90 (degrees)
-    var angle = (val / lowermax) * 90;
-    if (angle > 90)
-      angle = 90;
-    // convert to radians
-    angle = angle * (Math.PI / 180);
-    // take the sin of the 'angle'
-    var sinAngle = Math.sin(angle);
-    //and now mulitply by 255
-    offset = parseInt(sinAngle * uppermax);
-  }
-  
 	return offset;
-}
-
-function sendInteractiveMimicMessage(red, green, blue)
-{
-  var moduleName = document.getElementById("Sensors").selectedOptions[0].text;
-//  var servoNumber = document.getElementById("ServoNumber"+row).selectedOptions[0].text;
-
-  var payload = "CTSA00,S,"+mimicLEDRange+","+red+":"+green+":"+blue+",0,0";
-
-  PublishDevices(moduleName, payload);
 }
 
 function MimicUpdateSample1()
 {
-	var actualRed =   parseInt(document.getElementById("Red1").value);
-	var actualGreen = parseInt(document.getElementById("Green1").value);
-	var actualBlue =  parseInt(document.getElementById("Blue1").value);
+//	var red = parseInt(mapVal(0, 128, 0, 255, parseInt(document.getElementById("Red1").value)));
+//	var green = parseInt(mapVal(0, 128, 0, 255, parseInt(document.getElementById("Green1").value)));
+//	var blue = parseInt(mapVal(0, 128, 0, 255, parseInt(document.getElementById("Blue1").value)));
 
-	var red =   parseInt(mapVal(0, 64, 0, 255, actualRed));
-	var green = parseInt(mapVal(0, 64, 0, 255, actualGreen));
-	var blue =  parseInt(mapVal(0, 64, 0, 255, actualBlue));
+	var red = parseInt(document.getElementById("Red1").value);
+	var green = parseInt(document.getElementById("Green1").value);
+	var blue = parseInt(mocument.getElementById("Blue1").value);
 
 	var newColour = "rgb("+red+","+green+","+blue+")";
 	document.getElementById("sampleColour1").style.background = newColour;
-	
-	if (document.getElementById("popupMimicInteractive").checked)
-	{
-    sendInteractiveMimicMessage(actualRed, actualGreen, actualBlue);
-	}
 }
 
 function noSpaces(input, lengthCheck)
@@ -5414,7 +5275,7 @@ function confirmWiFiChanges(formdetails)
     confirmString += formdetails[0].value;
     confirmString += "\nPassword      : ";
     confirmString += formdetails[1].value;
-    confirmString += "\n\nThis will cause your base station to restart with these new details\n\nSelect 'OK' to continue";
+    confirmString += "\n\nThis will cause your base station network to restart with these new details\n\nSelect 'OK' to continue";
     return confirm(confirmString);
 }
 
@@ -7219,73 +7080,12 @@ $(document).ready(function(){
   </div>
 </div>
 
-<div id="editSignalHeadPopup" class="modal" style="color:black; z-index:50;">
-  <div class="servo-modal-content" style="width:650px;">
-    <h3 id="popupSignalHeadTitle">Signal Board Setting</h3>
-    <table>
-      <tr id = 'popupLightingSignalHead'>
-        <td>
-          Pattern
-        </td>
-        <td>
-          <select id="popupSignalHeadPattern_0">
-            <option id="0_S1" name="SignalType" value="R">Off</option>
-            <option id="0_S2" name="SignalType" value="S">On</option>
-            <option id="0_S3" name="SignalType" value="X">n/c</option>
-          </select>
-        </td>
-        <td>
-          <select id="popupSignalHeadPattern_1">
-            <option id="1_S1" name="SignalType" value="R">Off</option>
-            <option id="1_S2" name="SignalType" value="S">On</option>
-            <option id="1_S3" name="SignalType" value="X">n/c</option>
-          </select>
-        </td>
-        <td>
-          <select id="popupSignalHeadPattern_2">
-            <option id="2_S1" name="SignalType" value="R">Off</option>
-            <option id="2_S2" name="SignalType" value="S">On</option>
-            <option id="2_S3" name="SignalType" value="X">n/c</option>
-          </select>
-        </td>
-        <td>
-          <select id="popupSignalHeadPattern_3">
-            <option id="3_S1" name="SignalType" value="R">Off</option>
-            <option id="3_S2" name="SignalType" value="S">On</option>
-            <option id="3_S3" name="SignalType" value="X">n/c</option>
-          </select>
-        </td>
-        <td>
-          <select id="popupSignalHeadPattern_4">
-            <option id="4_S1" name="SignalType" value="R">Off</option>
-            <option id="4_S2" name="SignalType" value="S">On</option>
-            <option id="4_S3" name="SignalType" value="X">n/c</option>
-          </select>
-        </td>
-        <td>
-          <select id="popupSignalHeadPattern_5">
-            <option id="5_S1" name="SignalType" value="R">Off</option>
-            <option id="5_S2" name="SignalType" value="S">On</option>
-            <option id="5_S3" name="SignalType" value="X">n/c</option>
-          </select>
-        </td>
-        <td>
-          Flash? <input type="checkbox" id="popupSignalHeadFlashing">
-        </td>
-      </tr>
-    </table>
-    <br />
-    <button type='submit' class="editServoPopup_save" onclick="saveSignalHeadPopup();">Save</button>
-    <button class="editServoPopup_cancel" onclick="closeSignalHeadPopup()">Cancel</button>
-  </div>
-</div>
-
 <div id="editServoPopup" class="modal" style="color:black; z-index:50;">
   <div class="servo-modal-content" style="width:650px;">
     <h3 id="popupServoTitle"></h3>
     <input type="radio" id="_SERVO" style="margin-left: 8px" name="servoType" value="S" onchange="changeServoPopupType(this)">Servo <span style="font-family:icons;">&#xeff3;</span>
     <input type="radio" id="_RELAY" style="margin-left: 8px" name="servoType" value="R" onchange="changeServoPopupType(this)">Relay <span style="font-family:icons;">&#xeed9;</span>
-<!--    <input type="radio" id="_SIGNAL_HEAD" name="servoType" value="H" onchange="changeServoPopupType(this)">Signal <span style="font-family:icons;">&#xf016;</span> -->
+    <input type="radio" id="_SIGNAL_HEAD" name="servoType" value="H" onchange="changeServoPopupType(this)">Signal <span style="font-family:icons;">&#xf016;</span>
 <!--    <input type="radio" id="_SOLENOID" name="servoType" value="P" onchange="changeServoPopupType(this)">Solenoid <span style="font-family:icons;">&#xee84;</span> -->
     <input type="radio" id="_KATO" name="servoType" value="K" onchange="changeServoPopupType(this)">Kato <span style="font-family:icons;">&#xefae;</span>
     <input type="radio" id="_STALL" name="servoType" value="T" onchange="changeServoPopupType(this)">Stall Motor <span style="font-family:icons;">&#xe892;</span>
@@ -7725,10 +7525,10 @@ $(document).ready(function(){
             Red
           </td>
           <td>
-            <input id="Red1" type="range" name="Red1" min="0" max="63" value="32" oninput="this.form.Red1Value.value=this.value;MimicUpdateSample1();" />
+            <input id="Red1" type="range" name="Red1" min="0" max="127" value="64" oninput="this.form.Red1Value.value=this.value;MimicUpdateSample1();" />
           </td>
           <td>
-            <input id="Red1Value" type="number" name="Red1Value" min="0" max="63" value="32" oninput="this.form.Red1.value=this.value;MimicUpdateSample1();" />
+            <input id="Red1Value" type="number" name="Red1Value" min="0" max="127" value="64" oninput="this.form.Red1.value=this.value;MimicUpdateSample1();" />
           </td>
         </tr>
         <tr>
@@ -7736,10 +7536,10 @@ $(document).ready(function(){
             Green
           </td>
           <td>
-            <input id="Green1" type="range" name="Green1" min="0" max="63" value="32" oninput="this.form.Green1Value.value=this.value;MimicUpdateSample1();" />
+            <input id="Green1" type="range" name="Green1" min="0" max="127" value="64" oninput="this.form.Green1Value.value=this.value;MimicUpdateSample1();" />
           </td>
           <td>
-            <input id="Green1Value" type="number" name="Green1Value" min="0" max="63" value="32" oninput="this.form.Green1.value=this.value;MimicUpdateSample1();" />
+            <input id="Green1Value" type="number" name="Green1Value" min="0" max="127" value="64" oninput="this.form.Green1.value=this.value;MimicUpdateSample1();" />
           </td>
         </tr>
         <tr>
@@ -7747,21 +7547,16 @@ $(document).ready(function(){
             Blue
           </td>
           <td>
-            <input id="Blue1" type="range" name="Blue1" min="0" max="63" value="32" oninput="this.form.Blue1Value.value=this.value;MimicUpdateSample1();" />
+            <input id="Blue1" type="range" name="Blue1" min="0" max="127" value="64" oninput="this.form.Blue1Value.value=this.value;MimicUpdateSample1();" />
           </td>
           <td>
-            <input id="Blue1Value" type="number" name="Blue1Value" min="0" max="63" value="32" oninput="this.form.Blue1.value=this.value;MimicUpdateSample1();" />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Interactive? <input type="checkbox" onclick="MimicUpdateSample1()" id="popupMimicInteractive">
+            <input id="Blue1Value" type="number" name="Blue1Value" min="0" max="127" value="64" oninput="this.form.Blue1.value=this.value;MimicUpdateSample1();" />
           </td>
         </tr>
       </table>
     </form>
     <div>
-      <span id="sampleColour1" style="width: 50px; height: 50px; background-color: rgb(64,64,64); border-width: 2px; border-style: solid; float: right; margin-top: -110px;"></span>
+      <span id="sampleColour1" style="width: 50px; height: 50px; background-color: rgb(64,64,64); border-width: 2px; border-style: solid; float: right; margin-top: -83px;"></span>
     </div>
 
     <br />
@@ -8089,6 +7884,58 @@ $(document).ready(function(){
             <option value='4'>PM dot only</option>
             </select>
           </td>
+          </tr>
+          </table>
+        </div>
+
+        <div id="17" class="subpage" style="display:none;">
+        <div class="menu" id="menu" style="width:100%; background:#555555">
+          <a class="menuitem" onclick="retrieveConfigFile('16');" class="active"><span style="font-family:icons;font-size: 17;">&#xef08;</span> Download</a>
+          <a class="menuitem" onclick="programOledClockModule();" ><span style="font-family:icons;font-size: 17;">&#xf01c;</span> Upload</a>
+        </div>
+          <table id="oledConfigPage" style="display:none;">
+            <tr>
+              <td>
+              Brightness
+            </td>
+            <td>
+                <input onclick="openIntegerPopup(this, 1, 128, 'Brightness...');"  style="width: 32px;" name="oledBrightness" value="8" id="oledBrightness" >
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Clock Style
+            </td>
+            <td>
+            <select id="oledClockStyle">
+            <option value='1'>Analog</option>
+            <option value='2'>Digital</option>
+            </select>
+          </td>
+          </tr>
+          <tr>
+            <td>
+              Inverted
+            </td>
+            <td>
+              <input id="oledInverted" type="checkbox">
+            </td>
+          </tr>
+          <tr>
+            <td>
+              AM indication
+            </td>
+            <td>
+              <input id="oledMorningText" type="text" name="morning" onkeyup="noSpaces(this, 1);" onchange="noSpaces(this, 1);"">
+            </td>
+          </tr>
+          <tr>
+            <td>
+              PM indication
+            </td>
+            <td>
+              <input id="oledAfternoonText" type="text" name="afternoon" onkeyup="noSpaces(this, 1);" onchange="noSpaces(this, 1);"">
+            </td>
           </tr>
           </table>
         </div>
@@ -8487,7 +8334,7 @@ $(document).ready(function(){
 	<div class="footer">
 	  <hr>
 	  <img src="images/modulus_logo.png" style="width: 48px; float: left; margin-right: 10px;">
-		<h2 style="float: left;font-family:sans-serif;font-size: 18px;">MODULUS V1.10 &nbsp;&nbsp;&nbsp;&nbsp;&copy; 2022,2023,2024</h2>
+		<h2 style="float: left;font-family:sans-serif;font-size: 18px;">MODULUS V1.10 &nbsp;&nbsp;&nbsp;&nbsp;&copy; 2022,2023,2024,2025</h2>
 		<div style="float:right; width:290px; display:flex">
 		  <h2 style="font-family:sans-serif;font-size: 18px;">Proudly supported by </h2><img class="frontpage_logo" style="" src="images/sms_small.png">
 		</div>

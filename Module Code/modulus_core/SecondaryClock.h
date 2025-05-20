@@ -94,8 +94,8 @@ char tempString[40];
   
   if (boardType == LARGESECONDARYCLOCK)
   {
-//    Wire.pins(4, 5);
-    Wire.begin(4, 5);
+    Wire.pins(4, 5);
+    Wire.begin();
     delay(100);
     matrix.begin(0x70);
     Wire.setClock(100000L);
@@ -110,6 +110,7 @@ char tempString[40];
   Running = false;
   ampm = true;
   Clock24 = false;
+  secondCounter = 0;
 
   File f = LittleFS.open("/secondaryclock.conf", "r");
   if (!f)
@@ -189,8 +190,9 @@ long x;
   
         }
 
-        if (InputStr[1]=='I' && InputStr[2]=='D')
+        if (RxQueue[0]=='I' && RxQueue[1]=='D')
         {
+          DEBUG_println("ID REQUEST!");
           flashID_LED();
         }
         

@@ -8,15 +8,27 @@
 # this file. 
 # If not, please visit: <https://polyformproject.org/licenses/noncommercial/1.0.0>
 #
-****************************************************/ 
+****************************************************/
 #define _LIGHTING
 
 #define MAXLIGHTS 16 
+
+//#define OUTPUT_QUEUE_SIZE 18
+#define PROGRAM_CONF_PIN 3
+#define PROGRAM_PIN 4
+#define CHIPSELECT  10
+#define POWER_CONTROL_PIN D8
 
 char LIGHT_CONFIG_FILE[40]="LIGHT.CFG";
 char LIGHT_DEFAULT_FILE[40]="LIGHT_DEFAULT.CFG";
 
 Adafruit_PWMServoDriver Lights = Adafruit_PWMServoDriver();
+
+float sinCurve;
+
+uint8_t LightSequence2[2] = {41, 8};
+uint8_t LightSequence3[4] = {8, 41, 25, 8};
+uint8_t LightSequence4[4] = {8, 41, 25, 8};
 
 typedef struct {
   int16_t  Target;
@@ -35,6 +47,7 @@ typedef struct {
   uint32_t NextStepTime;
   uint8_t  Effect;
   uint16_t CurrentCount;
+  uint8_t  TempCount;
   bool     Moved;
   bool     Inverted;
 } LIGHT_DETAILS;
@@ -50,6 +63,7 @@ char ReadByte;
 int  i;
 
   sprintf(Line, "<I,%02d,", boardType);
+//  publishStringAsMessage(Line);
 
   for (i=0; i< 16; i++)
   {
@@ -257,7 +271,9 @@ uint8_t  SignalHeadBits;
       if (Args[i][j] == '$')
       {
         // substitute the letter for saved variable
+//        DEBUG_print("Substituting ");DEBUG_print(Args[i][j+1]);DEBUG_print(" with ");
         sprintf(tempString,"%s%s",tempString, Variables[Args[i][++j] - 'A']);
+//        DEBUG_println(tempString);
       }
       else
         sprintf(tempString,"%s%c",tempString, Args[i][j]);
@@ -270,6 +286,7 @@ uint8_t  SignalHeadBits;
   if (Args[0][0] == '=')
   {
     // remember the value we are told to
+//    DEBUG_print("Saving ");DEBUG_print(Args[2]);DEBUG_print(" as ");DEBUG_println(Args[1]);
     if ((Args[1][0] - 'A') >=0 && (Args[1][0] - 'A') <= 25)
       strcpy(Variables[Args[1][0] - 'A'], Args[2]);
   }
@@ -290,9 +307,13 @@ uint8_t  SignalHeadBits;
     {
       EndLightNumber = values[1];      
     }
+/*
+ *  THIS PART NEEDS REVISITING! NumRandom has been removed!!!!
+ */
+ 
+    DEBUG_println(Args[1][0]);
 
     NumRandom = 0;
-
     /* if the lights are being treated separately....*/
     if (Args[1][0] == 'I')
     {
@@ -341,20 +362,26 @@ uint8_t  SignalHeadBits;
       }
       else
         MustBeOneHit[StartLightNumber] = 1;
-    }
-    else
-    {
-      for (j=StartLightNumber; j<= EndLightNumber; j++)
-        MustBeOneHit[j] = 1;
+
+//      DEBUG_print("MustBeOneHit = ");DEBUG_println(MustBeOneHit);
     }
 
     for (LightNum = StartLightNumber; LightNum <= EndLightNumber; LightNum++)
     {
-//      if ((TimeMessage && !LightDetails[LightNum].Moved && MustBeOneHit[LightNum] == 1) || !TimeMessage || Override)
-      if ((TimeMessage && MustBeOneHit[LightNum] == 1) || !TimeMessage || Override)
+      if ((TimeMessage && !LightDetails[LightNum].Moved) || !TimeMessage || Override)
       {
-//        LightDetails[LightNum].Moved = true;
+        LightDetails[LightNum].Moved = true;
 
+        DEBUG_print(LightNum);DEBUG_print(" : ");
+
+        if (MustBeOneHit[LightNum] == 0 && NumRandom > 0)
+        {
+          DEBUG_println("Not doing this one");
+          continue;
+        }
+        else
+          DEBUG_println("Doing this one");
+      
         LightEffect  = Args[2][0];
 
         LightTarget1 = atoi(Args[4]); // TargetHigh
@@ -366,227 +393,212 @@ uint8_t  SignalHeadBits;
         LightTarget7 = atoi(Args[10]); // NumOfFlashes
         LightTarget8 = atoi(Args[11]); // Interval
   
-        if (Override || LightEffect == 'P'  || LightEffect == 'H' || !((LightDetails[LightNum].Effect == LightEffect) && (LightDetails[LightNum].HighTarget == map(LightTarget1,0,100,0,4095))))
+        proceed = true;
+
+        if (proceed)
         {
-          LightDetails[LightNum].Delay = millis() + (atoi(Args[3]) * 100L);
-
-          switch(LightEffect)
+          if (Override || LightEffect == 'P'  || LightEffect == 'H' || !((LightDetails[LightNum].Effect == LightEffect) && (LightDetails[LightNum].HighTarget == map(LightTarget1,0,100,0,4095))))
           {
-            case 'H':
-              SignalHeadBits = 2;
-              LightTarget1 = LightDetails[LightNum].HighTarget;
-              
-              for (i=1; i<7; i++)
-              {
-                if (Args[4][i] == 'S')
-                {
-                  LightTarget1 |= SignalHeadBits;
-                }
-                if (Args[4][i] == 'R')
-                {
-                  LightTarget1 &= ~SignalHeadBits;
-                }
-        
-                SignalHeadBits <<= 1;
-              }
+            LightDetails[LightNum].Delay = millis() + (atoi(Args[3]) * 100L);
 
-              LightDetails[LightNum].HighTarget = LightTarget1;
-              LightDetails[LightNum].Target = LightDetails[LightNum].HighTarget;
-
-              if (Args[4][0] == 'F')
-              {
-                LightDetails[LightNum].Actual = -1;
-                if (LightTarget3 != 0L)
-                  LightDetails[LightNum].TimeHigh = LightTarget3;
-                else
-                  LightDetails[LightNum].TimeHigh = 10L;
-              }
-              else
-              {
-                LightDetails[LightNum].TimeHigh = 0L;
-              }
-              LightDetails[LightNum].OnTime = 0L;
-              LightDetails[LightNum].OffTime = 0L;
-              LightDetails[LightNum].NextStepTime = 0L;
-              break;
-
-            case 'S':
-              LightDetails[LightNum].SpeedUp    = LightTarget2;
-              LightDetails[LightNum].SpeedDown  = LightTarget2;
-              LightDetails[LightNum].Target     = map(LightTarget1,0,100,0,4095);
-              LightDetails[LightNum].HighTarget = LightDetails[LightNum].Target;
-              LightDetails[LightNum].NextStepTime = 0L;
-              LightDetails[LightNum].OnTime = 0L;
-              LightDetails[LightNum].OffTime = 0L;
-              break;
-
-            case 'F':
-              LightDetails[LightNum].HighTarget   = map(LightTarget1,0,100,0,4095);
-              LightDetails[LightNum].LowTarget    = map(LightTarget4,0,100,0,4095);
-              LightDetails[LightNum].Actual       = LightDetails[LightNum].LowTarget;
-              if (LightDetails[LightNum].HighTarget == LightDetails[LightNum].LowTarget)
-                LightDetails[LightNum].LowTarget++;
-              LightDetails[LightNum].Target       = LightDetails[LightNum].HighTarget;
-              LightDetails[LightNum].Interval     = LightTarget8 * 100L;
-              LightDetails[LightNum].TimeLow      = LightTarget6;
-              LightDetails[LightNum].TimeHigh     = LightTarget3 * 100L;
-              LightDetails[LightNum].OnTime       = millis() + (LightTarget3 * 100L);
-              LightDetails[LightNum].OffTime      = 0L;
-              LightDetails[LightNum].NextStepTime = 0L;
-              break;
-
-            case 'B':
-              LightDetails[LightNum].HighTarget   = map(LightTarget1,0,100,0,4095);
-              LightDetails[LightNum].LowTarget    = map(LightTarget4,0,100,0,4095);
-              LightDetails[LightNum].Actual       = LightDetails[LightNum].LowTarget;
-              if (LightDetails[LightNum].HighTarget == LightDetails[LightNum].LowTarget)
-                LightDetails[LightNum].LowTarget++;
-              LightDetails[LightNum].Target       = LightDetails[LightNum].HighTarget;
-              LightDetails[LightNum].TimeLow      = LightTarget6 * 10L;
-              LightDetails[LightNum].OnTime       = millis() + (LightTarget3 * 100L);
-              LightDetails[LightNum].OffTime      = 0L;
-              LightDetails[LightNum].NextStepTime = 0L;
-              break;
-
-            case 'R':
-              LightDetails[LightNum].HighTarget = map(LightTarget1,0,100,0,4095);
-              LightDetails[LightNum].LowTarget  = map(LightTarget4,0,100,0,4095);
-      
-              if (LightDetails[LightNum].LowTarget == 0)
-                LightDetails[LightNum].LowTarget = 1;
-      
-              if (LightDetails[LightNum].LowTarget == LightDetails[LightNum].HighTarget)
-                if (LightDetails[LightNum].HighTarget <= 1)
-                  LightDetails[LightNum].HighTarget += 1;
-                else
-                  LightDetails[LightNum].LowTarget = LightDetails[LightNum].HighTarget - 1;              
+            switch(LightEffect)
+            {
+              case 'H':
+                SignalHeadBits = 2;
+                LightTarget1 = LightDetails[LightNum].HighTarget;
                 
-              LightDetails[LightNum].Actual     = 0;
-              LightDetails[LightNum].Target     = LightDetails[LightNum].HighTarget;
-              LightDetails[LightNum].SpeedUp    = LightTarget2 * 2L;
-              LightDetails[LightNum].TimeHigh   = LightTarget3 * 10L;
-              LightDetails[LightNum].TimeLow    = LightTarget6 * 10L;
-              LightDetails[LightNum].NumOfFlashes=LightTarget7 * 50L;
-              LightDetails[LightNum].Interval   = LightTarget8 * 100L;
-              LightDetails[LightNum].OffTime    = 0L;
-              LightDetails[LightNum].OnTime     = 0L;
-              LightDetails[LightNum].NextStepTime = 0L;
-              break;
-      
-            case 'Q':
-              LightDetails[LightNum].HighTarget   = map(LightTarget1,0,100,0,4095);
-              LightDetails[LightNum].SpeedUp      = LightTarget2;
-              LightDetails[LightNum].TimeHigh     = LightTarget3 * 10;
-              
-              LightDetails[LightNum].LowTarget    = map(LightTarget4,0,100,0,4095);
-              LightDetails[LightNum].SpeedDown    = LightTarget5;
-              LightDetails[LightNum].TimeLow      = LightTarget6 * 10;
-              
-              LightDetails[LightNum].Target       = LightDetails[LightNum].HighTarget;
-              LightDetails[LightNum].Actual       = LightDetails[LightNum].LowTarget;
-              LightDetails[LightNum].NumOfFlashes = LightTarget7;
-              LightDetails[LightNum].CurrentCount = LightTarget7;
-              
-              LightDetails[LightNum].Interval     = LightTarget8 * 100L;
-              LightDetails[LightNum].OffTime      = 0L;
-              LightDetails[LightNum].OnTime       = 0L;
-              LightDetails[LightNum].NextStepTime = 0L;
-              break;
-              
-            case 'P':
-              DEBUG_print("TimeRange = ");DEBUG_println(TimeRange);
-              
-              if (LightTarget4 > LightTarget1)
-              {
-                LightDetails[LightNum].HighTarget   = map(LightTarget4,0,100,0,4095);
-                LightDetails[LightNum].LowTarget    = map(LightTarget1,0,100,0,4095);
-                PosNeg = 2;
-              }
-              else
-              {
-                LightDetails[LightNum].HighTarget   = map(LightTarget1,0,100,0,4095);
-                LightDetails[LightNum].LowTarget    = map(LightTarget4,0,100,0,4095);
-                PosNeg = 1;
-              }
-              
-              // work out how many minutes are between the 2 times in the trigger...
-              if (CurrentHour != 255 && CurrentMinutes != 255)
-              {
-                TimeLow = TimeRange[0] - 'a';
-                TimeHigh = TimeRange[1] - 'a';
-                if (TimeHigh >= TimeLow)
+                for (i=1; i<7; i++)
                 {
-                  NumberOfMinutes = TimeHigh - TimeLow + 1;
+                  if (Args[4][i] == 'S')
+                  {
+                    LightTarget1 |= SignalHeadBits;
+                  }
+                  if (Args[4][i] == 'R')
+                  {
+                    LightTarget1 &= ~SignalHeadBits;
+                  }
+          
+                  SignalHeadBits <<= 1;
+                }
+
+                LightDetails[LightNum].HighTarget = LightTarget1;
+                LightDetails[LightNum].Target = LightDetails[LightNum].HighTarget;
+
+                if (Args[4][0] == 'F')
+                {
+                  LightDetails[LightNum].Actual = -1;
+                  if (LightTarget3 != 0L)
+                    LightDetails[LightNum].TimeHigh = LightTarget3;
+                  else
+                    LightDetails[LightNum].TimeHigh = 10L;
                 }
                 else
                 {
-                  NumberOfMinutes = (TimeHigh + 24) - TimeLow;
+                  LightDetails[LightNum].TimeHigh = 0L;
                 }
+                break;
 
-                if (CurrentHour < TimeLow)
-                {
-                  TimeDifference = (24 - TimeLow) + CurrentHour;
-                }
-                else
-                {
-                  TimeDifference = CurrentHour - TimeLow;
-                }
-    
-                NumberOfMinutes *= 60;
-    
-                TimeDifference *= 60;
-                TimeDifference += CurrentMinutes;
-              
-                LightDifference = LightDetails[LightNum].HighTarget - LightDetails[LightNum].LowTarget;
-
-//DEBUG_print("LED     :");DEBUG_println(LightNum);
-//DEBUG_print("High    :");DEBUG_println(LightDetails[LightNum].HighTarget);
-//DEBUG_print("Low     :");DEBUG_println(LightDetails[LightNum].LowTarget);
-//DEBUG_print("TimeDiff:");DEBUG_println(TimeDifference);
-//DEBUG_print("LightDif:");DEBUG_println(LightDifference);
-//DEBUG_print("PosNeg  :");DEBUG_println(PosNeg);
-
-                if (PosNeg == 2)
-                  LightDetails[LightNum].Target = (uint16_t)((float)((float)TimeDifference / (float)NumberOfMinutes) * (float)LightDifference) + LightDetails[LightNum].LowTarget;
-                else
-                  LightDetails[LightNum].Target = LightDetails[LightNum].HighTarget - (uint16_t)((float)((float)TimeDifference / (float)NumberOfMinutes) * (float)LightDifference);
-                
-//DEBUG_print("Target   :");DEBUG_println(LightDetails[LightNum].Target);
-
-                LightDetails[LightNum].HighTarget = LightDetails[LightNum].Target;
-                LightDetails[LightNum].LowTarget  = LightDetails[LightNum].Target;
+              case 'S':
                 LightDetails[LightNum].SpeedUp    = LightTarget2;
-              }
-              else
-              {
-                if (PosNeg == 2)
+                LightDetails[LightNum].SpeedDown  = LightTarget2;
+                LightDetails[LightNum].Target     = map(LightTarget1,0,100,0,4095);
+                LightDetails[LightNum].HighTarget = LightDetails[LightNum].Target;
+                LightDetails[LightNum].OnTime = 0L;
+                break;
+
+              case 'F':
+                LightDetails[LightNum].HighTarget = map(LightTarget1,0,100,0,4095);
+                LightDetails[LightNum].LowTarget = map(LightTarget4,0,100,0,4095);
+                LightDetails[LightNum].Actual = LightDetails[LightNum].LowTarget;
+                if (LightDetails[LightNum].HighTarget == LightDetails[LightNum].LowTarget)
+                  LightDetails[LightNum].LowTarget++;
+                LightDetails[LightNum].Target = LightDetails[LightNum].HighTarget;
+                LightDetails[LightNum].SpeedUp = LightTarget2 * 2L;
+                LightDetails[LightNum].Interval   = LightTarget8 * 100L;
+                LightDetails[LightNum].TimeLow   = LightTarget7 * 20L;
+                LightDetails[LightNum].TimeHigh = millis() + LightTarget7 + (LightDetails[LightNum].TimeLow/2) + random((LightDetails[LightNum].TimeLow/2));
+                break;
+        
+              case 'R':
+                LightDetails[LightNum].HighTarget = map(LightTarget1,0,100,0,4095);
+                LightDetails[LightNum].LowTarget  = map(LightTarget4,0,100,0,4095);
+        
+                if (LightDetails[LightNum].LowTarget == 0)
+                  LightDetails[LightNum].LowTarget = 1;
+        
+                if (LightDetails[LightNum].LowTarget == LightDetails[LightNum].HighTarget)
+                  if (LightDetails[LightNum].HighTarget <= 1)
+                    LightDetails[LightNum].HighTarget += 1;
+                  else
+                    LightDetails[LightNum].LowTarget = LightDetails[LightNum].HighTarget - 1;              
+                  
+                LightDetails[LightNum].Actual     = 0;
+                LightDetails[LightNum].Target     = LightDetails[LightNum].HighTarget;
+                LightDetails[LightNum].SpeedUp    = LightTarget2 * 2L;
+                LightDetails[LightNum].TimeHigh   = LightTarget3 * 10L;
+                LightDetails[LightNum].TimeLow    = LightTarget6 * 10L;
+                LightDetails[LightNum].NumOfFlashes=LightTarget7 * 50L;
+                LightDetails[LightNum].Interval   = LightTarget8 * 100L;
+                LightDetails[LightNum].OffTime    = 0L;
+                LightDetails[LightNum].OnTime     = 0L;
+                break;
+        
+              case 'Q':
+                LightDetails[LightNum].HighTarget   = map(LightTarget1,0,100,0,4095);
+                LightDetails[LightNum].SpeedUp      = LightTarget2;
+                LightDetails[LightNum].TimeHigh     = LightTarget3 * 10;
+                
+                LightDetails[LightNum].LowTarget    = map(LightTarget4,0,100,0,4095);
+                LightDetails[LightNum].SpeedDown    = LightTarget5;
+                LightDetails[LightNum].TimeLow      = LightTarget6 * 10;
+                
+                LightDetails[LightNum].Target       = LightDetails[LightNum].HighTarget;
+                LightDetails[LightNum].Actual       = LightDetails[LightNum].LowTarget;
+                LightDetails[LightNum].NumOfFlashes = LightTarget7;
+                LightDetails[LightNum].CurrentCount = LightTarget7;
+                
+                LightDetails[LightNum].Interval     = LightTarget8 * 100L;
+                break;
+                
+              case 'P':
+//                DEBUG_print(TimeRange[0]);DEBUG_print(TimeRange[1]);DEBUG_print(TimeRange[2]);DEBUG_println(TimeRange[3]);
+                if (LightTarget4 > LightTarget1)
                 {
-                  LightDetails[LightNum].Actual     = LightDetails[LightNum].HighTarget;
-                  LightDetails[LightNum].Target     = LightDetails[LightNum].LowTarget;
-                  LightDetails[LightNum].HighTarget = LightDetails[LightNum].Target;              
-                  LightDetails[LightNum].SpeedUp    = 200L;
-                  LightDetails[LightNum].SpeedDown  = 200L;
+                  LightDetails[LightNum].HighTarget   = map(LightTarget4,0,100,0,4095);
+                  LightDetails[LightNum].LowTarget    = map(LightTarget1,0,100,0,4095);
+                  PosNeg = 1;
                 }
                 else
                 {
-                  LightDetails[LightNum].Actual    = LightDetails[LightNum].LowTarget;
-                  LightDetails[LightNum].Target    = LightDetails[LightNum].HighTarget;
-                  LightDetails[LightNum].LowTarget = LightDetails[LightNum].Target;              
-                  LightDetails[LightNum].SpeedUp   = 200L;
-                  LightDetails[LightNum].SpeedDown = 200L;
+                  LightDetails[LightNum].HighTarget   = map(LightTarget1,0,100,0,4095);
+                  LightDetails[LightNum].LowTarget    = map(LightTarget4,0,100,0,4095);
+                  PosNeg = 2;
                 }
-              }
-              
-              LightEffect = 'S';
-              LightDetails[LightNum].OnTime     = 0L;
-              LightDetails[LightNum].OffTime    = 0L;
-              LightDetails[LightNum].Delay      = 0L;
-              LightDetails[LightNum].Interval   = 0L;
-              break;          
-          }
-          LightDetails[LightNum].Effect = LightEffect;
-          LightDetails[LightNum].NextStepTime = 0L;
-        } 
+                
+//                DEBUG_print("High : ");DEBUG_println(LightDetails[LightNum].HighTarget);
+//                DEBUG_print("Low  : ");DEBUG_println(LightDetails[LightNum].LowTarget);
+                
+                // work out how many minutes are between the 2 times in the trigger...
+                if (CurrentHour != 255 && CurrentMinutes != 255)
+                {
+                  TimeLow = TimeRange[0] - 'a';
+                  TimeHigh = TimeRange[1] - 'a';
+                  
+//                  DEBUG_print("TimeLow = ");DEBUG_println(TimeLow);
+//                  DEBUG_print("TimeHigh = ");DEBUG_println(TimeHigh);
+      
+                  if (TimeHigh > TimeLow)
+                  {
+                    NumberOfMinutes = TimeHigh - TimeLow;
+                  }
+                  else
+                  {
+                    NumberOfMinutes = (TimeHigh + 24) - TimeLow;
+                  }
+      
+//                  DEBUG_print("CurrentHour = ");DEBUG_println(CurrentHour);
+//                  DEBUG_print("CurrentMinutes = ");DEBUG_println(CurrentMinutes);
+
+                  if (CurrentHour < TimeLow)
+                  {
+                    TimeDifference = (24 - TimeLow) + CurrentHour;
+                  }
+                  else
+                  {
+                    TimeDifference = CurrentHour - TimeLow;
+                  }
+      
+                  NumberOfMinutes *= 60;
+//                  DEBUG_print("NumberOfMinutes = ");DEBUG_println(NumberOfMinutes);
+      
+                  TimeDifference *= 60;
+                  TimeDifference += CurrentMinutes;
+//                  DEBUG_print("TimeDifference = ");DEBUG_println(TimeDifference);
+                
+                  LightDifference = LightDetails[LightNum].HighTarget - LightDetails[LightNum].LowTarget;
+//                  DEBUG_print("LightDifference = ");DEBUG_println(LightDifference);
+      
+                  if (PosNeg == 2)
+                    LightDetails[LightNum].Target = (uint16_t)((float)((float)TimeDifference / (float)NumberOfMinutes) * (float)LightDifference) + LightDetails[LightNum].LowTarget;
+                  else
+                    LightDetails[LightNum].Target = LightDetails[LightNum].HighTarget - (uint16_t)((float)((float)TimeDifference / (float)NumberOfMinutes) * (float)LightDifference);
+                  
+//                  DEBUG_print("Target = ");DEBUG_println(LightDetails[LightNum].Target);
+                  LightDetails[LightNum].HighTarget = LightDetails[LightNum].Target;
+                  LightDetails[LightNum].LowTarget  = LightDetails[LightNum].Target;
+                  LightDetails[LightNum].SpeedUp    = LightTarget2;
+                }
+                else
+                {
+                  if (PosNeg == 2)
+                  {
+                    LightDetails[LightNum].Actual     = LightDetails[LightNum].HighTarget;
+                    LightDetails[LightNum].Target     = LightDetails[LightNum].LowTarget;
+                    LightDetails[LightNum].HighTarget = LightDetails[LightNum].Target;              
+                    LightDetails[LightNum].SpeedUp    = 200L;
+                    LightDetails[LightNum].SpeedDown  = 200L;
+                  }
+                  else
+                  {
+                    LightDetails[LightNum].Actual    = LightDetails[LightNum].LowTarget;
+                    LightDetails[LightNum].Target    = LightDetails[LightNum].HighTarget;
+                    LightDetails[LightNum].LowTarget = LightDetails[LightNum].Target;              
+                    LightDetails[LightNum].SpeedUp   = 200L;
+                    LightDetails[LightNum].SpeedDown = 200L;
+                  }
+                }
+                
+                LightEffect = 'S';
+                LightDetails[LightNum].OnTime     = 0L;
+                LightDetails[LightNum].OffTime    = 0L;
+                LightDetails[LightNum].Delay      = 0L;
+                LightDetails[LightNum].Interval   = 0L;
+                break;          
+            }
+            LightDetails[LightNum].Effect = LightEffect;
+            LightDetails[LightNum].NextStepTime = 0L;
+          } 
+        }
       }
     }
   }
@@ -621,7 +633,13 @@ float sineCurve;
         Lights.setPWM(LightNum, 0, 4096);
         delay(2);
       }
-
+/*
+      // latch the signal head outputs AND clear the counter
+      Servos.setPWM(CurrentServo, 4096, 0);
+      delay(80);
+      Servos.setPWM(CurrentServo, 0, 4096);
+      delay(70);
+*/
       if (LightDetails[LightNum].TimeHigh > 0)
       {
         if (LightDetails[LightNum].Target == 0)
@@ -646,9 +664,9 @@ float sineCurve;
   }
   else
   {
-    if (newPosition != 0)
+    if (proportional)
     {
-      if (proportional)
+      if (newPosition != 0)
       {
         sineCurve = newPosition/4096.0;
         sineCurve = sineCurve * sineCurve;
@@ -661,18 +679,16 @@ float sineCurve;
       else
       {
         if (!LightDetails[LightNum].Inverted)
-          Lights.setPWM(LightNum, 0, 4095 - newPosition);
+          Lights.setPWM(LightNum, 0, 4095);
         else
-          Lights.setPWM(LightNum, 0, newPosition);
+          Lights.setPWM(LightNum, 0, 0);
       }
     }
     else
-    {
       if (!LightDetails[LightNum].Inverted)
-        Lights.setPWM(LightNum, 4096, 0);
+        Lights.setPWM(LightNum, 0, 4095 - newPosition);
       else
-        Lights.setPWM(LightNum, 0, 4096);
-    }
+        Lights.setPWM(LightNum, 0, newPosition);
   }
   return;
 }
@@ -896,7 +912,6 @@ bool     Changed;
       {
         switch (LightDetails[CurrentLight].Effect)
         {
-          case 'P':
           case 'H':
             moveLight(CurrentLight, LightDetails[CurrentLight].Target, true);
             break;
@@ -938,9 +953,9 @@ bool     Changed;
             break;
 
           case 'F':
-            if (millis() < LightDetails[CurrentLight].OnTime || LightDetails[CurrentLight].Interval == 0)
+            if (millis() < LightDetails[CurrentLight].TimeHigh || LightDetails[CurrentLight].Interval == 0)
             {
-              LightDetails[CurrentLight].NextStepTime = millis() + (LightDetails[CurrentLight].TimeLow/2) + random(LightDetails[CurrentLight].TimeLow/2);
+                LightDetails[CurrentLight].NextStepTime = millis() + LightDetails[CurrentLight].SpeedUp + random(LightDetails[CurrentLight].SpeedUp);
 //              DEBUG_print("Flicker Act : ");DEBUG_print(LightDetails[CurrentLight].Actual);DEBUG_print(" Tgt : ");DEBUG_println(LightDetails[CurrentLight].Target);
 
               LightDetails[CurrentLight].Actual = LightDetails[CurrentLight].Target;
@@ -954,37 +969,14 @@ bool     Changed;
             else
             {
               LightDetails[CurrentLight].Delay = millis() + (LightDetails[CurrentLight].Interval/2) + random((LightDetails[CurrentLight].Interval/2));
-              LightDetails[CurrentLight].OnTime = LightDetails[CurrentLight].Delay + LightDetails[CurrentLight].TimeHigh + random(LightDetails[CurrentLight].TimeHigh);
+              LightDetails[CurrentLight].TimeHigh = LightDetails[CurrentLight].Delay + LightDetails[CurrentLight].TimeLow + random(LightDetails[CurrentLight].TimeLow);
 //              LightDetails[CurrentLight].Delay = LightDetails[CurrentLight].NextStepTime + (LightDetails[CurrentLight].Interval/2) + random((LightDetails[CurrentLight].Interval/2));
 //              DEBUG_print("TH : ");DEBUG_println(LightDetails[CurrentLight].TimeHigh);
-              LightDetails[CurrentLight].Actual = LightDetails[CurrentLight].LowTarget;
-              LightDetails[CurrentLight].Target = LightDetails[CurrentLight].HighTarget;
-              moveLight(CurrentLight, LightDetails[CurrentLight].Actual, true);
-            }
-            break;
-
-          case 'B':
-            if (millis() < LightDetails[CurrentLight].OnTime)
-            {
-//              LightDetails[CurrentLight].NextStepTime = millis() + (LightDetails[CurrentLight].TimeLow/2) + random(LightDetails[CurrentLight].TimeLow/2);
-              LightDetails[CurrentLight].NextStepTime = millis() + random(LightDetails[CurrentLight].TimeLow);
-
-              if (LightDetails[CurrentLight].Actual == LightDetails[CurrentLight].LowTarget)
-              {
-                LightDetails[CurrentLight].Target = LightDetails[CurrentLight].LowTarget;
-                LightDetails[CurrentLight].Actual = LightDetails[CurrentLight].HighTarget;
-              }
-              else
-              {
+              LightDetails[CurrentLight].Actual = 0;
+              if(LightDetails[CurrentLight].HighTarget != 0)
                 LightDetails[CurrentLight].Target = LightDetails[CurrentLight].HighTarget;
-                LightDetails[CurrentLight].Actual = LightDetails[CurrentLight].LowTarget;
-              }
-              moveLight(CurrentLight, LightDetails[CurrentLight].Actual, true);
-            }
-            else
-            {
-              LightDetails[CurrentLight].Actual = LightDetails[CurrentLight].HighTarget;
-              LightDetails[CurrentLight].Target = LightDetails[CurrentLight].Actual;              
+              else
+                LightDetails[CurrentLight].Target = LightDetails[CurrentLight].LowTarget;
               moveLight(CurrentLight, LightDetails[CurrentLight].Actual, true);
             }
             break;
