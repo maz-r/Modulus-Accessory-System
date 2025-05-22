@@ -153,7 +153,7 @@ int16_t  difference;
   
 }
 
-void StepperProcessLine(char *LinetoProcess, bool TimeMessage, uint8_t NumRandom, bool Override)
+void StepperProcessLine(char *LinetoProcess, bool TimeMessage, bool Override, char *BestTimeMatch, uint8_t CurrentHour, uint8_t CurrentMinutes)
 {
 uint8_t  StepperNumber;
 uint16_t LineCount;
@@ -502,52 +502,12 @@ char     Args[20][10];
           StepperProcessFile(&InputStr[2], true);
         }
       }
-  
-/*      // if it is a remote config message....
-      if (InputStr[1] == 'C' && InputStr[2] == 'Z')
-      {
-        DEBUG_println ("Reset to zero requested");
-        motorNum = InputStr[3] - '0';
-        Motor[motorNum].Mode = ResetZero;
-        Motor[motorNum].subMode = 0;
-      }
 
-      if (InputStr[1] == 'C' && InputStr[2] == 'B')
-      {
-        DEBUG_print ("Testing backlash : ");
-        motorNum = InputStr[3] - '0';
-        TestBacklashCount = atoi(&InputStr[4]);
-        DEBUG_println (TestBacklashCount);
-        if (TestBacklashCount != 0)
-        {
-          TestBacklashCount += Motor[motorNum].ForwardCircleCount * (float)((float)180.0 / 360.0);
-          Motor[motorNum].Mode = TestBacklash;
-          Motor[motorNum].backlashCount = Motor[motorNum].ForwardCircleCount * (float)((float)180.0 / 360.0);
-          Motor[motorNum].subMode = 0;
-        }
-        else
-          Motor[motorNum].Mode = Normal;
-      }
-*/
       if (InputStr[1] == 'C' && InputStr[2] == 'T')
       {
-        StepperProcessLine(&InputStr[8], false, 0, true);
-      }
-/*
-      if (InputStr[1] == 'C' && InputStr[2] == 'F')
-      {
-        motorNum = InputStr[3] - '0';
-        Motor[motorNum].Mode = FullCircle;
-        Motor[motorNum].CurrentDirection = 1;
+        StepperProcessLine(&InputStr[8], false, true, (char *)NULL, 0, 0);
       }
 
-      if (InputStr[1] == 'C' && InputStr[2] == 'R')
-      {
-        motorNum = InputStr[3] - '0';
-        Motor[motorNum].Mode = FullCircle;
-        Motor[motorNum].CurrentDirection = -1;
-      }
-*/
       if (InputStr[1]=='W' && InputStr[2]=='C')
       {
         DEBUG_println("Overwrite the config file");

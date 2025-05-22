@@ -15,7 +15,7 @@
 #define MANUALINPUT           3
 #define SERVO                 4
 #define MIMICDISPLAY          5
-#define RELAY                 6
+// #define RELAY                 6
 #define STEPPERMOTOR          7
 #define MATRIXCLOCK           8
 #define SOUNDMODULE           9
@@ -112,7 +112,6 @@ ESP8266HTTPUpdateServer httpUpdater;
 bool        InsideMessage;
 bool        ResetPressed;
 int         InCount;
-//char        tempDebugString[80];
 char        Line[MAXLINELENGTH];
 char        BestMatch[MAXLINELENGTH];
 char        ConfigTriggers[MAX_CONFIG_LINES][4];
@@ -130,10 +129,6 @@ char        ipAddress[20];
 int         OperatingMode;
 long        nextLEDFlash;
 int         flashstate = 0;
-//long        lastMsg = 0;
-//long        lastHeapPrint = 0;
-//char        msg[50];
-//int         value = 0;
 char        uniqueID[7];
 unsigned char ReceiveQueue[RECEIVEQUEUESIZE];
 int         ReceiveQueueHead = 0;
@@ -163,7 +158,6 @@ bool        ampm;
 bool        Clock24;
 int         secondCounter;
 int         Brightness;
-//char        tempString[1024];
 uint8_t     data[5];
 
 char serverIndex[512];
@@ -194,7 +188,6 @@ int i;
   ResetPressed = false;
   Serial.begin(115200);
 
-//  LittleFS.begin();
   LittleFS.begin();
   delay(100);
 
@@ -260,7 +253,6 @@ int i;
       case LARGESECONDARYCLOCK:
       case SECONDARYCLOCK:
         #ifdef _SECONDARY_CLOCK
-//        if (OperatingMode == NORMAL)
           secondaryClockSetup(boardType);
         #endif
         initialiseComms();
@@ -278,14 +270,13 @@ int i;
         initialiseComms();
         delay(100);
         #ifdef _MANUAL_INPUT
-//        if (OperatingMode == NORMAL)
           manualInputSetup();
         #endif
         break;
 
       case SERVO:
         #ifdef _SERVO
-        servoSetup();
+          servoSetup();
         #endif
         initialiseComms();
         break;
@@ -304,13 +295,6 @@ int i;
         #endif
         break;
 
-      case RELAY:
-        #ifdef _RELAY
-          relaySetup();
-        #endif
-        initialiseComms();
-        break;
-        
       case OLEDCLOCK:
         #ifdef _OLEDCLOCK
           oledclockSetup();
@@ -320,14 +304,13 @@ int i;
         
       case ANALOGCLOCK:
         #ifdef _ANALOG_CLOCK
-        analogClockSetup();
+          analogClockSetup();
         #endif
         initialiseComms();
         break;
 
       case SOUNDMODULE:
         #ifdef _SOUND_PLAYER
-//        if (OperatingMode == NORMAL)
           soundSetup();
         #endif
         initialiseComms();
@@ -335,7 +318,6 @@ int i;
 
       case STEPPERMOTOR:
         #ifdef _STEPPER_CONTROL
-//        if (OperatingMode == NORMAL)
           stepperSetup();
         #endif
         initialiseComms();
@@ -345,7 +327,6 @@ int i;
         initialiseComms();
         delay(100);
         #ifdef _DCC_CONTROL
-//        if (OperatingMode == NORMAL)
           DCCSetup();
         #endif
         break;
@@ -354,7 +335,6 @@ int i;
         initialiseComms();
         delay(100);
         #ifdef _IR_INPUT
-//        if (OperatingMode == NORMAL)
           IRSetup();
         #endif
         break;
@@ -389,7 +369,7 @@ int i;
         break;
 
       case STEPPERMOTOR:
-//        ProcessFile(INITIALISE_STRING, false, ServoProcessLine);
+        ProcessFile(INITIALISE_STRING, false, StepperProcessLine);
         break;
     }
   }
@@ -401,80 +381,74 @@ void ReadSerial()
   {
     case MANUALINPUT:
       #ifdef _MANUAL_INPUT
-      manualInputSerial();
+        manualInputSerial();
       #endif
       break;
 
     case LARGESECONDARYCLOCK:
     case SECONDARYCLOCK:
       #ifdef _SECONDARY_CLOCK
-      secondaryClockSerial(boardType);
+        secondaryClockSerial(boardType);
       #endif
       break;
 
     case MATRIXCLOCK:
       #ifdef _MATRIX_CLOCK
-      matrixClockSerial();
+        matrixClockSerial();
       #endif
       break;
 
     case SERVO:
       #ifdef _SERVO
-      servoSerial();
+        servoSerial();
       #endif
       break;
 
     case LIGHTINGCONTROLLER:
       #ifdef _LIGHTING
-      LightSerial();
+        LightSerial();
       #endif
       break;
 
     case MIMICDISPLAY:
       #ifdef _MIMIC_DISPLAY
-      mimicDisplaySerial();
-      #endif
-      break;
-
-    case RELAY:
-      #ifdef _RELAY
-      relaySerial();
+        mimicDisplaySerial();
       #endif
       break;
 
     case OLEDCLOCK:
       #ifdef _OLEDCLOCK
-      oledclockSerial();
+        oledclockSerial();
       #endif
       break;
 
     case ANALOGCLOCK:
       #ifdef _ANALOG_CLOCK
-      analogClockSerial();
+        analogClockSerial();
       #endif
       break;
 
     case SOUNDMODULE:
       #ifdef _SOUND_PLAYER
-      soundSerial();
+        soundSerial();
       #endif
       break;
 
     case STEPPERMOTOR:
       #ifdef _STEPPER_CONTROL
-      stepperSerial();
+        stepperSerial();
       #endif
       break;
 
     case DCCCONTROLLER:
       #ifdef _DCC_CONTROL
-      DCCSerial();
+        DCCSerial();
       #endif
       break;
 
     case IRINPUT:
       #ifdef _IR_INPUT
-      IRSerial();
+        IRSerial();
       #endif
       break;
 
@@ -513,7 +487,6 @@ char nextChar;
   
   if (OperatingMode == SETUP)
   {
-//    dnsServer.processNextRequest();
     webServer.handleClient();
     if (millis() > nextLEDFlash)
     {
@@ -550,7 +523,6 @@ char nextChar;
         else
         {
           if (!MQTTclient.connected())
-    //      if (false) 
           {
             DEBUG_println("mqtt NOT connected");
             digitalWrite(LED_BUILTIN, LOW);
@@ -585,74 +557,44 @@ char nextChar;
     }
  
     // and now do normal processing!
-/*    if (boardType == SERVO)
-    {
-      AllStill = true;
-      for (i=0; i<MAXSERVOS && AllStill; i++)
-      {
-        if (servoDetails[i].Moved)
-        {
-          AllStill = false;
-        }
-      }
-      if (AllStill)
-      {
-        ReadSerial();
-      }
-    }
-    else */
-      ReadSerial();
-
-/*
-    if (millis() - lastHeapPrint > 1000L)
-    {
-      lastHeapPrint = millis();
-      ESP.getFreeHeap();
-    }
-*/
+    ReadSerial();
 
     switch (boardType)
     {
       case LARGESECONDARYCLOCK:
       case SECONDARYCLOCK:
         #ifdef _SECONDARY_CLOCK
-        secondaryClockLoop(boardType);
+          secondaryClockLoop(boardType);
         #endif
         break;
 
       case MATRIXCLOCK:
         #ifdef _MATRIX_CLOCK
-        matrixClockLoop();
+          matrixClockLoop();
         #endif
         break;
 
     case MANUALINPUT:
         #ifdef _MANUAL_INPUT
-        manualInputLoop();
+          manualInputLoop();
         #endif
         break;
 
       case SERVO:
         #ifdef _SERVO
-        servoLoop();
+          servoLoop();
         #endif
         break;
 
       case LIGHTINGCONTROLLER:
         #ifdef _LIGHTING
-        LightLoop();
+          LightLoop();
         #endif
         break;
 
       case MIMICDISPLAY:
         #ifdef _MIMIC_DISPLAY
-        mimicDisplayLoop();
-        #endif
-        break;
-
-      case RELAY:
-        #ifdef _RELAY
-        relayLoop();
+          mimicDisplayLoop();
         #endif
         break;
 
