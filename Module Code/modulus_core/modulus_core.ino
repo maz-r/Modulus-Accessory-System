@@ -524,7 +524,7 @@ char nextChar;
         {
           if (!MQTTclient.connected())
           {
-            DEBUG_println("mqtt NOT connected");
+            DEBUG_println("MQTT NOT connected");
             digitalWrite(LED_BUILTIN, LOW);
             ResetPressed = connectToMQTT();
             digitalWrite(LED_BUILTIN, HIGH);
@@ -600,25 +600,25 @@ char nextChar;
 
       case OLEDCLOCK:
         #ifdef _OLEDCLOCK
-        oledclockLoop();
+          oledclockLoop();
         #endif
         break;
         
       case ANALOGCLOCK:
         #ifdef _ANALOG_CLOCK
-        analogClockLoop();
+          analogClockLoop();
         #endif
         break;
 
       case SOUNDMODULE:
         #ifdef _SOUND_PLAYER
-        soundLoop();
+          soundLoop();
         #endif
         break;
 
       case STEPPERMOTOR:
         #ifdef _STEPPER_CONTROL
-        stepperLoop();
+          stepperLoop();
         #endif
         break;          
 
@@ -630,7 +630,7 @@ char nextChar;
 
       case IRINPUT:
         #ifdef _IR_INPUT
-        IRLoop();
+          IRLoop();
         #endif
         break;          
     }
