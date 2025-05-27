@@ -6,32 +6,49 @@
     $errors = [];
 
     // Available file extensions
-    $fileExtensions = ['jpeg','wav','mp3','gif'];
+    $fileExtensions = ['wav','mp3'];
 
-   if(!empty($_FILES['fileAjax'] ?? null)) {
-        $fileName = $_FILES['fileAjax']['name'];
-        $fileTmpName  = $_FILES['fileAjax']['tmp_name'];
-        $fileType = $_FILES['fileAjax']['type'];
-        $fileExtension = strtolower(pathinfo($fileName,PATHINFO_EXTENSION));
+    $filename = $_SERVER['HTTP_X_FILE_NAME'];
+    $filesize = $_SERVER['HTTP_X_FILE_SIZE'];
+
+//    if(!empty($_FILES['fileAjax'] ?? null)) 
+//    {
+//        $fileName = $_FILES['fileAjax']['name'];
+//        $fileTmpName  = $_FILES['fileAjax']['tmp_name'];
+//        $fileType = $_FILES['fileAjax']['type'];
+//        $fileExtension = strtolower(pathinfo($fileName,PATHINFO_EXTENSION));
 
         $uploadPath = $uploadDirectory . basename($fileName); 
 
-        if (isset($fileName)) {
-            if (! in_array($fileExtension,$fileExtensions)) {
+        if (isset($fileName)) 
+        {
+/*            if (! in_array($fileExtension,$fileExtensions)) 
+            {
                 $errors[] = "JPEG, JPG, PNG and GIF images are only supported";
-            }
-            if (empty($errors)) {
+            } */
+            if (empty($errors)) 
+            {
                 $didUpload = move_uploaded_file($fileTmpName, $uploadPath);
-                if ($didUpload) {
-                    echo "The image " . basename($fileName) . " has been uploaded.";
-                } else {
+                if ($didUpload) 
+                {
+                    echo "The sound " . basename($fileName) . " has been uploaded.";
+                } 
+                else 
+                {
                     echo "An error occurred while uploading. Try again.";
                 }
-            } else {
-                foreach ($errors as $error) {
+            }
+            else 
+            {
+                foreach ($errors as $error) 
+                {
                     echo $error . "The following error occured: " . "\n";
                 }
             }
         }
-    }
+//    }
+//    else
+//    {
+//	    echo "The file list is empty" . "\n";
+//    }
 ?>

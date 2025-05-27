@@ -35,7 +35,7 @@
 
 
 #define MAJOR_VERSION         "0"
-#define MINOR_VERSION         "22"
+#define MINOR_VERSION         "23"
 
 #define HARDWARE_REVISION     "V1"
 
@@ -83,7 +83,7 @@ char INITIALISE_STRING[]="INIT";
 #include <Adafruit_LEDBackpack.h>
 #include <LedControl.h>
 #include <Adafruit_PWMServoDriver.h>
-#include <ESP8266HTTPUpdateServer.h>
+#include "ESP8266HTTPUpdateServer_modulus.h"
 #include <TM1637Display.h>
 #include <Adafruit_MotorShield.h>
 #include <AccelStepper.h>
@@ -102,7 +102,10 @@ IPAddress               local_IP(192,168,0,1);
 IPAddress               subnet(255,255,255,0);
 WiFiClient              client;
 ESP8266WebServer        webServer(80);
+// const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
+
 ESP8266HTTPUpdateServer httpUpdater;
+const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
 #ifdef USE_MQTT
   PubSubClient MQTTclient;
@@ -160,11 +163,11 @@ int         secondCounter;
 int         Brightness;
 uint8_t     data[5];
 
-char serverIndex[512];
+/*char serverIndex[512];
 char firstServerIndex[]  = "<html><body><h2>Update ";
 char secondServerIndex[] = "</h2>Choose a new firmware file:<br><br><form method='POST' action='' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form></body></html>";
 char MysuccessResponse[] = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Update Success! Rebooting...\nPlease close this window";
-
+*/
 #include "mudular_core.h"
 #include "servo.h"
 #include "manualinput.h"
@@ -236,9 +239,9 @@ int i;
     DEBUG_println(MajorVersion);
     DEBUG_println(MinorVersion);
 
-    strcpy(serverIndex, firstServerIndex);
-    strcat(serverIndex, modulename);
-    strcat(serverIndex, secondServerIndex);
+//    strcpy(serverIndex, firstServerIndex);
+//    strcat(serverIndex, modulename);
+//    strcat(serverIndex, secondServerIndex);
 
     OperatingMode = WIFI_COMMS;
 

@@ -11,7 +11,7 @@
 #
 -->
 <script src="js/paho-mqtt.js" type="text/javascript"></script>
-<script src="js/jquery-min.js"></script>
+<script src="js/jquery-3.7.1.min.js"></script>
 <link   href="css/sms.css" rel="stylesheet" />
 
 <style>
@@ -1766,7 +1766,7 @@ var Processed;
     		  	  tempString += ConfigDetails[4];
     		  	  tempString += "\',\'";
     		  	  tempString += ConfigDetails[1];
-    			    tempString += '\');"><span style="font-family:icons;">&#xef1f;</span> Upgrade</button></td>';
+    			    tempString += '\');"><span style="font-family:icons;">&#xef1f;</span> Update</button></td>';
             }
             else
       			{
@@ -1821,7 +1821,7 @@ var Processed;
     		  	  tempString += ConfigDetails[4];
     		  	  tempString += "\',\'";
     		  	  tempString += ConfigDetails[1];
-    			    tempString += '\');"><span style="font-family:icons;">&#xef1f;</span> Upgrade</button></td>';
+    			    tempString += '\');"><span style="font-family:icons;">&#xef1f;</span> Update</button></td>';
     			  }
     			}
 
@@ -6358,7 +6358,6 @@ function ajax_upload_sound(event)
     formData.append('fileAjax', file, file.name);
 
     var xhr = new XMLHttpRequest();
-
     xhr.upload.onprogress = (event) => {
       var progress = Math.ceil(((event.loaded) / event.total) * 100);
       if (progress > 100)
@@ -6366,7 +6365,12 @@ function ajax_upload_sound(event)
       statusP.style.width = progress+"%";
     }
 
-    xhr.open('POST', 'upload_sound.php', true);
+    xhr.open('POST', "http://"+ "<?php echo $_SERVER['HTTP_HOST']?>" + "/upload_sound.php", true);
+//    xhr.open('put', "upload_sound.php", true);
+
+//    xhr.setRequestHeader("X-File-Name", file.name);
+//    xhr.setRequestHeader("X-File-Size", file.size);
+
     xhr.onload = function () {
       if (xhr.status == 200) {
         statusP.innerHTML = 'Complete!';
@@ -6379,6 +6383,7 @@ function ajax_upload_sound(event)
     };
 
     xhr.send(formData);
+//    xhr.send(file);
   }
   else
     alert ("The filename selected is invalid. Please rename the file and try again.");
